@@ -37,4 +37,12 @@ public abstract class QueryService {
                         .collect(Collectors.toMap(column -> column, column -> row.getData().get(column)))
         );
     }
+
+    protected List<String> getListColumns(String query) {
+        return Arrays.stream(query.split(" "))
+                .filter(word -> query.indexOf(word) > query.indexOf("select"))
+                .filter(word -> query.indexOf(word) < query.indexOf("from"))
+                .map(word -> word.replace(",", ""))
+                .collect(Collectors.toList());
+    }
 }

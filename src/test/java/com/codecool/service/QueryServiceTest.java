@@ -56,4 +56,12 @@ class QueryServiceTest {
 
         assertEquals(expectedRow.toString(), queryService.getUpdatedRowWithColumns(row, columns).toString());
     }
+
+    @Test
+    void testListColumnsFromQuery() {
+        String query = "select id, name, age from abc.csv";
+        List<String> expectedColumns = Arrays.asList("id", "name", "age");
+
+        assertEquals(expectedColumns, queryService.getListColumns(query));
+    }
 }
