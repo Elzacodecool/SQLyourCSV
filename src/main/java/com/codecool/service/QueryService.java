@@ -29,5 +29,10 @@ public abstract class QueryService {
     }
 
 
-
+    protected Row getUpdatedRowWithColumns(Row row, List<String> columns) {
+        return new Row(
+                columns.stream()
+                        .collect(Collectors.toMap(column -> column, column -> row.getData().get(column)))
+        );
+    }
 }
