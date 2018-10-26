@@ -18,7 +18,7 @@ public abstract class QueryService {
         int indexFrom = words.indexOf("from");
         if (indexFrom < 0) {
             throw new WrongQueryFormatException("Missing FROM statement");
-        } else if (indexFrom >= words.size()) {
+        } else if (indexFrom >= words.size() - 1) {
             throw new WrongQueryFormatException("Missing filename");
         }
 
