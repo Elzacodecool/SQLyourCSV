@@ -2,16 +2,14 @@ package com.codecool.service;
 
 import com.codecool.exception.WrongQueryFormatException;
 import com.codecool.model.Row;
+import com.codecool.model.Table;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -58,10 +56,33 @@ class QueryServiceTest {
     }
 
     @Test
-    void testListColumnsFromQuery() {
+    void testValidatedListColumnsFromQuery() {
         String query = "select id, name, age from abc.csv";
+        List<String> columns = Arrays.asList("id", "name", "surname", "age");
+        Table table = new Table(columns, new ArrayList<>());
+
         List<String> expectedColumns = Arrays.asList("id", "name", "age");
 
-        assertEquals(expectedColumns, queryService.getListColumns(query));
+        assertEquals(expectedColumns, queryService.getValidatedListColumns(query, table));
+    }
+
+    @Test
+    void testValidatedListColumnsFromQuery_allColumns() {
+        String query = "select * from abc.csv";
+        List<String> columns = Arrays.asList("id", "name", "surname", "age");
+        Table table = new Table(columns, new ArrayList<>());
+
+        List<String> expectedColumns = Arrays.asList("id", "name", "surname", "age");
+
+        assertEquals(expectedColumns, queryService.getValidatedListColumns(query, table));
+    }
+
+    @Test
+    void testValidatedListColumnsFromQuery_wrongColumnName() {
+        String query = "select login from abc.csv";
+        List<String> columns = Arrays.asList("id", "name", "surname", "age");
+        Table table = new Table(columns, new ArrayList<>());
+
+        assertThrows(WrongQueryFormatException.class, () -> queryService.getValidatedListColumns(query, table));
     }
 }

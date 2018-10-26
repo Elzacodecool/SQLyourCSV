@@ -6,7 +6,6 @@ import com.codecool.model.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -24,7 +23,7 @@ public class SelectService extends QueryService {
     public Table executeQuery(String query) {
         String filename = getFileName(query);
         Table table = converter.convert("src/main/resources/" + filename);
-        List<String> columnsToDisplay = getListColumns(query);
+        List<String> columnsToDisplay = getValidatedListColumns(query, table);
         Predicate<Row> predicate = getPredicate(query);
 
         List<Row> newRows = table.getRows().stream()

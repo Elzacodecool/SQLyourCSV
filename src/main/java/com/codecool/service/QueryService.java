@@ -38,11 +38,29 @@ public abstract class QueryService {
         );
     }
 
-    protected List<String> getListColumns(String query) {
+    protected List<String> getValidatedListColumns(String query, Table table) {
+        List<String> columns = getListColumns(query);
+
+        if (columns.contains("*")) {
+            return table.getColumnNames();
+        }
+
+        if (checkIfColumnsExistInTable(columns, table)) {
+            return columns;
+        }
+
+        throw new WrongQueryFormatException("No column in table");
+    }
+
+    private List<String> getListColumns(String query) {
         return Arrays.stream(query.split(" "))
                 .filter(word -> query.indexOf(word) > query.indexOf("select"))
                 .filter(word -> query.indexOf(word) < query.indexOf("from"))
                 .map(word -> word.replace(",", ""))
                 .collect(Collectors.toList());
+    }
+
+    private boolean checkIfColumnsExistInTable(List<String> columns, Table table) {
+        return table.getColumnNames().containsAll(columns);
     }
 }
