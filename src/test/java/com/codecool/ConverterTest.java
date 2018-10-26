@@ -2,7 +2,7 @@ package com.codecool;
 
 import com.codecool.converter.Converter;
 import com.codecool.converter.FileReader;
-import com.codecool.converter.WrongDataStructureException;
+import com.codecool.exception.WrongDataStructureException;
 import com.codecool.model.Row;
 import com.codecool.model.Table;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,5 +1,6 @@
 package com.codecool.converter;
 
+import com.codecool.exception.WrongDataStructureException;
 import com.codecool.model.Row;
 import com.codecool.model.Table;
 import org.springframework.beans.factory.annotation.Autowired;
