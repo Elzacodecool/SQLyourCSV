@@ -16,24 +16,24 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ServiceConfig.class)
-class QueryServiceTest {
+class SelectServiceTest {
     @Autowired
-    private QueryService queryService;
+    private SelectService service;
 
     @Test
     void testGetFilenameByQuery() {
         String query = "select * from abc.csv";
-        assertEquals("abc.csv", queryService.getFileName(query));
+        assertEquals("abc.csv", service.getFilename(query));
     }
     @Test
     void testGetFilenameByQuery_withoutFrom() {
         String query = "select * abc.csv";
-        assertThrows(WrongQueryFormatException.class, () -> queryService.getFileName(query));
+        assertThrows(WrongQueryFormatException.class, () -> service.getFilename(query));
     }
     @Test
     void testGetFilenameByQuery_withoutFilename() {
         String query = "select * from";
-        assertThrows(WrongQueryFormatException.class, () -> queryService.getFileName(query));
+        assertThrows(WrongQueryFormatException.class, () -> service.getFilename(query));
     }
 
     @Test
@@ -52,7 +52,7 @@ class QueryServiceTest {
         map1.put("first_name", "ala");
         Row expectedRow = new Row(map1);
 
-        assertEquals(expectedRow.toString(), queryService.getUpdatedRowWithColumns(row, columns).toString());
+        assertEquals(expectedRow.toString(), service.getUpdatedRowWithColumns(row, columns).toString());
     }
 
     @Test
@@ -63,7 +63,7 @@ class QueryServiceTest {
 
         List<String> expectedColumns = Arrays.asList("id", "name", "age");
 
-        assertEquals(expectedColumns, queryService.getValidatedListColumns(query, table));
+        assertEquals(expectedColumns, service.getValidatedListColumns(query, table));
     }
 
     @Test
@@ -74,7 +74,7 @@ class QueryServiceTest {
 
         List<String> expectedColumns = Arrays.asList("id", "name", "surname", "age");
 
-        assertEquals(expectedColumns, queryService.getValidatedListColumns(query, table));
+        assertEquals(expectedColumns, service.getValidatedListColumns(query, table));
     }
 
     @Test
@@ -83,6 +83,6 @@ class QueryServiceTest {
         List<String> columns = Arrays.asList("id", "name", "surname", "age");
         Table table = new Table(columns, new ArrayList<>());
 
-        assertThrows(WrongQueryFormatException.class, () -> queryService.getValidatedListColumns(query, table));
+        assertThrows(WrongQueryFormatException.class, () -> service.getValidatedListColumns(query, table));
     }
 }
