@@ -1,30 +1,33 @@
 package com.codecool;
 
 import com.codecool.converter.Converter;
-import com.codecool.converter.FileReader;
 import com.codecool.exception.WrongDataStructureException;
 import com.codecool.model.Row;
 import com.codecool.model.Table;
-import org.junit.jupiter.api.BeforeEach;
+import com.codecool.service.ServiceConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = ServiceConfig.class)
 class ConverterTest {
+
+    @Autowired
     private Converter converter;
 
-    @BeforeEach
-    void setUp() {
-        converter = new Converter(new FileReader());
-    }
-
     @Test
-    void testConvertCcvToTable() {
+    void testConvertCsvToTable() {
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 1);
         map1.put("first_name", "ala");
