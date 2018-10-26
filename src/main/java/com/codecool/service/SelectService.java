@@ -34,4 +34,10 @@ public class SelectService implements QueryService {
         return new Table(columnsToDisplay, newRows);
     }
 
+    private Row getUpdatedRowWithColumns(Row row, List<String> columns) {
+        return new Row(
+                columns.stream()
+                        .collect(Collectors.toMap(column -> column, column -> row.getData().get(column)))
+        );
+    }
 }
