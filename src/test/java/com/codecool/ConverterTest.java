@@ -2,8 +2,10 @@ package com.codecool;
 
 import com.codecool.converter.Converter;
 import com.codecool.converter.FileReader;
+import com.codecool.converter.WrongDataStructureException;
 import com.codecool.model.Row;
 import com.codecool.model.Table;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -14,6 +16,12 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConverterTest {
+    private Converter converter;
+
+    @BeforeEach
+    void setUp() {
+        converter = new Converter(new FileReader());
+    }
 
     @Test
     void testConvertCcvToTable() {
@@ -39,11 +47,19 @@ class ConverterTest {
         List<Row> rows = Arrays.asList(row1, row2, row3);
         Table expectedTable = new Table(columnNames, rows);
 
-        Converter converter = new Converter(new FileReader());
         Table resultTable = converter.convert("src/test/resources/table.csv");
 
         assertEquals(expectedTable.getColumnNames(), resultTable.getColumnNames());
         assertEquals(expectedTable.toString(), resultTable.toString());
     }
 
+    @Test
+    void testConverter_withEmptyFile() {
+        assertThrows(WrongDataStructureException.class, () -> converter.convert("src/test/resources/empty_file.csv"));
+    }
+
+    @Test
+    void testConverter_withDifferentColumnsSize() {
+        assertThrows(WrongDataStructureException.class, () -> converter.convert("src/test/resources/wrong_structure.csv"));
+    }
 }
