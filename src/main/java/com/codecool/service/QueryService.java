@@ -3,11 +3,13 @@ package com.codecool.service;
 import com.codecool.exception.WrongQueryFormatException;
 import com.codecool.model.Row;
 import com.codecool.model.Table;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public abstract class QueryService {
     public abstract Table executeQuery(String query);
 
