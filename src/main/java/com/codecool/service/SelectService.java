@@ -23,10 +23,11 @@ public class SelectService extends QueryService {
 
     @Override
     public Table executeQuery(String query) {
-        String filename = getFilename(query);
+        String customizedQuery = query.toLowerCase().replace(";", "");
+        String filename = getFilename(customizedQuery);
         Table table = converter.convert("src/main/resources/" + filename);
-        List<String> columnsToDisplay = getValidatedListColumns(query, table);
-        Predicate<Row> predicate = getPredicate(query);
+        List<String> columnsToDisplay = getValidatedListColumns(customizedQuery, table);
+        Predicate<Row> predicate = getPredicate(customizedQuery);
 
         List<Row> newRows = table.getRows().stream()
                 .filter(predicate)
