@@ -88,7 +88,60 @@ public class SelectService extends QueryService {
 
 
     Predicate<Row> getPredicate(String query) {
-        return null;
+        if (query.contains("where")) {
+            List<String> queryList = mapQueryToList(query);
+            List<String> condition = queryList.stream()
+                    .skip(queryList.indexOf("where") + 1)
+                    .collect(Collectors.toList());
+            return buildPredicate(condition);
+        }
+
+        return (row) -> true;
     }
 
+    private Predicate<Row> buildPredicate(List<String> condition) {
+        Predicate<Row> predicate;
+        String columnName = condition.get(0);
+        String operator = condition.get(1);
+        String value = condition.get(2);
+
+        switch (operator) {
+            case "=":
+                predicate = (row) -> row.getData().get(columnName).equals(value);
+                break;
+            case ">":
+                predicate = (row) -> Integer.valueOf(row.getData().get(columnName).toString()) > Integer.valueOf(value);
+                break;
+            case "<":
+                predicate = (row) -> Integer.valueOf(row.getData().get(columnName).toString()) < Integer.valueOf(value);
+                break;
+            case "<>":
+                predicate = (row) -> !row.getData().get(columnName).equals(value);
+                break;
+            case "like":
+                predicate = (row) -> row.getData().get(columnName) instanceof String &&
+                        row.getData().get(columnName).equals(value.replace("\'", ""));
+                break;
+            default:
+                return (row) -> false;
+        }
+
+        if (condition.size() > 3 && condition.get(3).equals("or")) {
+            return predicate.or(buildPredicate(condition.subList(4, condition.size())));
+        } else if (condition.size() > 3 && condition.get(3).equals("and")) {
+            return predicate.and(buildPredicate(condition.subList(4, condition.size())));
+        }
+        return predicate;
+    }
+
+    private List<String> mapQueryToList(String text) {
+        return Arrays.stream(Arrays.stream(text.split(" "))
+                .map(word -> word.length() > 1 ? word.replace("=", " = ") : word)
+                .map(word -> !word.contains("<>") && word.length() > 1 ? word.replace(">", " > ") : word)
+                .map(word -> !word.contains("<>") && word.length() > 1 ? word.replace("<", " < ") : word)
+                .map(word -> word.length() > 2 ? word.replace("<>", " <> ") : word)
+                .collect(Collectors.joining(" "))
+                .split(" "))
+                .collect(Collectors.toList());
+    }
 }
