@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class ServiceConfig {
 
     @Bean
-    public QueryService selectService() {
+    public SelectService selectService() {
         return new SelectService(converter());
     }
 
