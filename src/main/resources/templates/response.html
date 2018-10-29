@@ -12,22 +12,35 @@
 
 <body>
 
-<a href="\query">New query</a>
-<p th:text= "'Your result is: ' + ${queryTable}" />
+<div class="card table-responsive">
+    <h5 class="card-header">SQLyourCSV</h5>
+    <div class="card-body">
 
-<div class="container">
-    <h1>Your Result</h1>
-    <div class="row col-md-7 table-responsive">
-        <table id="Table" class="table">
-            <thead>
-            <tr>
+        <form class="container" action="#" th:action="@{/query}" th:object="${query}" method="post">
+            <h5 class="card-title">Provide query</h5>
+
+            <input class="form-control form-control-lg" type="text"th:field="*{query}"><br>
+
+            <input class="btn btn-info btn-block" type="submit" value="Submit"/>
+
+
+        </form>
+
+
+
+<div class="container-fluid card-body">
+    <h5 class="card-title">Your Result</h5>
+
+        <table id="Table" class="table table-striped container-fluid">
+            <thead class="text-center">
+            <tr class="table-info">
                 <th:block th:each="h : ${queryTable.getColumnNames()}">
                     <th th:text="${h}">Header Field</th>
                 </th:block>
             </tr>
 
             </thead>
-            <tbody>
+            <tbody class="text-center">
             <tr th:each="row : ${queryTable.getRows()}">
                 <th:block th:each="cell : ${row.getValuesFromRow()}">
                     <th th:text="${cell}">Row Field</th>
@@ -35,7 +48,8 @@
             </tr>
             </tbody>
         </table>
-    </div>
+</div>
+</div>
 </div>
 </body>
 </html>
