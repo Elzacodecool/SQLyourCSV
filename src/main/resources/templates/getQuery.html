@@ -6,10 +6,10 @@
 </head>
 
 <body>
-<form method="post">
+<form action="#" th:action="@{/query}" th:object="${query}" method="post">
     <p>Provide query</p>
 
-    <input type="text"><br>
+    <input type="text"th:field="*{query}"><br>
 
     <input type="submit" value="Submit"/>
 
@@ -17,3 +17,4 @@
 </form>
 </body>
 </html>
+

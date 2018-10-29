@@ -19,8 +19,6 @@ public class Converter {
         this.fileReader = fileReader;
     }
 
-    public Converter() {
-    }
 
     public Table convert(String filepath) {
         List<String[]> data = fileReader.readData(filepath);
