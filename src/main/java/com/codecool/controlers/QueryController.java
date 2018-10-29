@@ -26,7 +26,7 @@ public class QueryController {
     @PostMapping()
     @ResponseStatus(HttpStatus.ACCEPTED)
     public String displayResult(@ModelAttribute("query") QueryInterpreter query, Model model ) {
-        model.addAttribute("table", this.service.executeQuery(query.getQuery()).toString());
+        model.addAttribute("queryTable", this.service.executeQuery(query.getQuery()));
         return "response";
 
 
