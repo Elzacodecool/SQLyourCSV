@@ -102,9 +102,9 @@ public class SelectService extends QueryService {
 
     private Predicate<Row> buildPredicate(List<String> condition) {
         Predicate<Row> predicate;
-        String columnName = condition.get(0);
-        String operator = condition.get(1);
-        String value = condition.get(2);
+        String columnName = condition.get(condition.size()-3);
+        String operator = condition.get(condition.size()-2);
+        String value = condition.get(condition.size()-1);
 
         switch (operator) {
             case "=":
@@ -127,10 +127,10 @@ public class SelectService extends QueryService {
                 return (row) -> false;
         }
 
-        if (condition.size() > 3 && condition.get(3).equals("or")) {
-            return predicate.or(buildPredicate(condition.subList(4, condition.size())));
-        } else if (condition.size() > 3 && condition.get(3).equals("and")) {
-            return predicate.and(buildPredicate(condition.subList(4, condition.size())));
+        if (condition.size() > 3 && condition.get(condition.size()-4).equals("or")) {
+            return predicate.or(buildPredicate(condition.subList(0, condition.size()-4)));
+        } else if (condition.size() > 3 && condition.get(condition.size()-4).equals("and")) {
+            return predicate.and(buildPredicate(condition.subList(0, condition.size()-4)));
         }
         return predicate;
     }
