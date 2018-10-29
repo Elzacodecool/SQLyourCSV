@@ -207,4 +207,47 @@ public class SelectServiceTest {
 
         assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
     }
+
+    @Test
+    public void testExecuteQuery_withFewConditions() {
+        String query = "select * from table.csv where id = 1 or first_name like 'marian' and age > 20";
+
+
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("id", 3);
+        map1.put("first_name", "marian");
+        map1.put("age", 90);
+        Row row1 = new Row(map1);
+
+
+        List<String> columnNames = Arrays.asList("id", "first_name", "age");
+        List<Row> rows = Collections.singletonList(row1);
+        Table expectedTable = new Table(columnNames, rows);
+
+        assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
+    }
+
+    @Test
+    public void testExecuteQuery_withFewConditions2() {
+        String query = "select * from table.csv where id = 1 and first_name like 'marian' or age > 20";
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("id", 2);
+        map1.put("first_name", "tomek");
+        map1.put("age", 30);
+        Row row1 = new Row(map1);
+
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("id", 3);
+        map2.put("first_name", "marian");
+        map2.put("age", 90);
+        Row row2 = new Row(map2);
+
+        List<String> columnNames = Arrays.asList("id", "first_name", "age");
+        List<Row> rows = Arrays.asList(row1, row2);
+        Table expectedTable = new Table(columnNames, rows);
+
+        assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
+
+    }
+
 }
