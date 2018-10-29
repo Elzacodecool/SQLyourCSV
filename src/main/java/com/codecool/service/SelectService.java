@@ -21,6 +21,10 @@ public class SelectService extends QueryService {
         this.converter = converter;
     }
 
+
+    public SelectService() {
+    }
+
     @Override
     public Table executeQuery(String query) {
         String customizedQuery = query.toLowerCase().replace(";", "");

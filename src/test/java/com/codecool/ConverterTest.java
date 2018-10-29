@@ -4,12 +4,12 @@ import com.codecool.converter.Converter;
 import com.codecool.exception.WrongDataStructureException;
 import com.codecool.model.Row;
 import com.codecool.model.Table;
-import com.codecool.service.ServiceConfig;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,15 +19,15 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = ServiceConfig.class)
-class ConverterTest {
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class ConverterTest {
 
     @Autowired
     private Converter converter;
 
     @Test
-    void testConvertCsvToTable() {
+    public void testConvertCsvToTable() {
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 1);
         map1.put("first_name", "ala");
@@ -57,12 +57,12 @@ class ConverterTest {
     }
 
     @Test
-    void testConverter_withEmptyFile() {
+    public void testConverter_withEmptyFile() {
         assertThrows(WrongDataStructureException.class, () -> converter.convert("src/test/resources/empty_file.csv"));
     }
 
     @Test
-    void testConverter_withDifferentColumnsSize() {
+    public void testConverter_withDifferentColumnsSize() {
         assertThrows(WrongDataStructureException.class, () -> converter.convert("src/test/resources/wrong_structure.csv"));
     }
 }

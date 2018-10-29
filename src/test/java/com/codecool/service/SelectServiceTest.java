@@ -3,41 +3,43 @@ package com.codecool.service;
 import com.codecool.exception.WrongQueryFormatException;
 import com.codecool.model.Row;
 import com.codecool.model.Table;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = ServiceConfig.class)
-class SelectServiceTest {
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class SelectServiceTest {
+
     @Autowired
-    private SelectService service;
+    SelectService service =  new SelectService();
 
     @Test
-    void testGetFilenameByQuery() {
+    public void testGetFilenameByQuery() {
         String query = "select * from abc.csv";
         assertEquals("abc.csv", service.getFilename(query));
     }
     @Test
-    void testGetFilenameByQuery_withoutFrom() {
+    public void testGetFilenameByQuery_withoutFrom() {
         String query = "select * abc.csv";
         assertThrows(WrongQueryFormatException.class, () -> service.getFilename(query));
     }
     @Test
-    void testGetFilenameByQuery_withoutFilename() {
+    public void testGetFilenameByQuery_withoutFilename() {
         String query = "select * from";
         assertThrows(WrongQueryFormatException.class, () -> service.getFilename(query));
     }
 
     @Test
-    void testupdateRowWithColumns() {
+    public void testupdateRowWithColumns() {
         Map<String, Object> map = new HashMap<>();
         map.put("id", 1);
         map.put("first_name", "ala");
@@ -56,7 +58,7 @@ class SelectServiceTest {
     }
 
     @Test
-    void testValidatedListColumnsFromQuery() {
+    public void testValidatedListColumnsFromQuery() {
         String query = "select id, name, age from abc.csv";
         List<String> columns = Arrays.asList("id", "name", "surname", "age");
         Table table = new Table(columns, new ArrayList<>());
@@ -67,7 +69,7 @@ class SelectServiceTest {
     }
 
     @Test
-    void testValidatedListColumnsFromQuery_allColumns() {
+    public void testValidatedListColumnsFromQuery_allColumns() {
         String query = "select * from abc.csv";
         List<String> columns = Arrays.asList("id", "name", "surname", "age");
         Table table = new Table(columns, new ArrayList<>());
@@ -78,7 +80,7 @@ class SelectServiceTest {
     }
 
     @Test
-    void testValidatedListColumnsFromQuery_wrongColumnName() {
+    public void testValidatedListColumnsFromQuery_wrongColumnName() {
         String query = "select login from abc.csv";
         List<String> columns = Arrays.asList("id", "name", "surname", "age");
         Table table = new Table(columns, new ArrayList<>());
@@ -87,7 +89,7 @@ class SelectServiceTest {
     }
 
     @Test
-    void testExecuteQuery_withoutCondition() {
+    public void testExecuteQuery_withoutCondition() {
         String query = "select * from table.csv;";
 
         Map<String, Object> map1 = new HashMap<>();
@@ -115,7 +117,7 @@ class SelectServiceTest {
         assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
     }
     @Test
-    void testExecuteQuery_withEquals() {
+    public void testExecuteQuery_withEquals() {
         String query = "select * from table.csv where age=20;";
 
         Map<String, Object> map1 = new HashMap<>();
@@ -132,7 +134,7 @@ class SelectServiceTest {
     }
 
     @Test
-    void testExecuteQuery_withGreater() {
+    public void testExecuteQuery_withGreater() {
         String query = "select * from table.csv where age > 30;";
 
         Map<String, Object> map3 = new HashMap<>();
@@ -149,7 +151,7 @@ class SelectServiceTest {
     }
 
     @Test
-    void testExecuteQuery_withSmaller() {
+    public void testExecuteQuery_withSmaller() {
         String query = "select * from table.csv where age < 30;";
 
         Map<String, Object> map1 = new HashMap<>();
@@ -166,7 +168,7 @@ class SelectServiceTest {
     }
 
         @Test
-    void testExecuteQuery_withNotEquals() {
+    public void testExecuteQuery_withNotEquals() {
         String query = "select * from table.csv where age <> 20;";
 
         Map<String, Object> map2 = new HashMap<>();
@@ -189,7 +191,7 @@ class SelectServiceTest {
     }
 
     @Test
-    void testExecuteQuery_withLike() {
+    public void testExecuteQuery_withLike() {
         String query = "select * from table.csv where first_name like 'ala';";
 
         Map<String, Object> map1 = new HashMap<>();
