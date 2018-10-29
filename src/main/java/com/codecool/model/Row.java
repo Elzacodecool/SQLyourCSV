@@ -16,6 +16,12 @@ public class Row {
         return data;
     }
 
+    public String toString() {
+        return data.entrySet().stream()
+                .map(entry -> String.format("%"+ COLUMN_WIDTH +"s", entry.getValue()))
+                .collect(Collectors.joining(" | "));
+    }
+
     public List<String> getValuesFromRow() {
         return data.entrySet().stream()
                 .map(entry -> entry.getValue().toString())
