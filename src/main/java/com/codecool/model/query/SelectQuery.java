@@ -20,21 +20,25 @@ public class SelectQuery {
     private Predicate<Row> whereCondition;
     private List<String> columnNames;
     private Map<SQLAggregateFunctions, List<String>> functions;
-    private List<Predicate<Row>> joinConditions;
+    private List<List<String>> joinConditions;
     private String groupByColumn;
 
 
     public SelectQuery(String query) {
         super();
-        this.query = query;
-        fileNames = getFilename(query);
-        columnNames = getColumnNames(query);
-        functions = getFunctions(query);
+
+        this.query = query.toLowerCase().replace(";", "");
+        functions = getFunctions(this.query);
+        columnNames = getColumnNames(this.query);
+        fileNames = getFilenames(this.query);
+        groupByColumn = getGroupBy(this.query);
+        whereCondition = getPredicate(this.query);
+
 
 
     }
 
-    private List<String> getFilename(String query) {
+    private List<String> getFilenames(String query) {
         List<String> words = Arrays.asList(query.split(" "));
         int indexFrom = words.indexOf("from");
         if (indexFrom < 0) {
@@ -96,6 +100,82 @@ public class SelectQuery {
                 .collect(Collectors.toList());
     }
 
+    private List<String> mapQueryToList(String text) {
+        return Arrays.stream(Arrays.stream(text.split(" "))
+                .map(word -> word.length() > 1 ? word.replace("=", " = ") : word)
+                .map(word -> !word.contains("<>") && word.length() > 1 ? word.replace(">", " > ") : word)
+                .map(word -> !word.contains("<>") && word.length() > 1 ? word.replace("<", " < ") : word)
+                .map(word -> word.length() > 2 ? word.replace("<>", " <> ") : word)
+                .collect(Collectors.joining(" "))
+                .split(" "))
+                .collect(Collectors.toList());
+    }
+
+    private String getGroupBy(String query) {
+        List<String> words = Arrays.asList(query.split(" "));
+        int indexFrom = words.indexOf("group");
+        if (indexFrom < 0) {
+            throw new WrongQueryFormatException("Missing GROUP BY statement");
+        } else if (indexFrom >= words.size() - 1) {
+            throw new WrongQueryFormatException("Missing columnName");
+        }
+
+        return words.get(indexFrom + 2);
+    }
+
+
+
+    private Predicate<Row> getPredicate(String query) {
+        if (query.contains("where")) {
+            List<String> queryList = mapQueryToList(query);
+            List<String> condition = queryList.stream()
+                    .skip(queryList.indexOf("where") + 1)
+                    .collect(Collectors.toList());
+            return buildPredicate(condition);
+        }
+
+        return (row) -> true;
+    }
+
+    private Predicate<Row> buildPredicate(List<String> condition) {
+        Predicate<Row> predicate;
+        String columnName = condition.get(condition.size()-3);
+        String operator = condition.get(condition.size()-2);
+        String value = condition.get(condition.size()-1);
+
+        switch (operator) {
+            case "=":
+                predicate = (row) -> row.getData().get(columnName).equals(value);
+                break;
+            case ">":
+                predicate = (row) -> Integer.valueOf(row.getData().get(columnName).toString()) > Integer.valueOf(value);
+                break;
+            case "<":
+                predicate = (row) -> Integer.valueOf(row.getData().get(columnName).toString()) < Integer.valueOf(value);
+                break;
+            case "<>":
+                predicate = (row) -> !row.getData().get(columnName).equals(value);
+                break;
+            case "like":
+                predicate = (row) -> row.getData().get(columnName) instanceof String &&
+                        row.getData().get(columnName).equals(value.replace("\'", ""));
+                break;
+            default:
+                return (row) -> false;
+        }
+
+        if (condition.size() > 3 && condition.get(condition.size()-4).equals("or")) {
+            return predicate.or(buildPredicate(condition.subList(0, condition.size()-4)));
+        } else if (condition.size() > 3 && condition.get(condition.size()-4).equals("and")) {
+            return predicate.and(buildPredicate(condition.subList(0, condition.size()-4)));
+        }
+        return predicate;
+    }
+
+    private List<Predicate<Row>> getJoinConditions(String query) {
+
+    }
+
     public List<String> getFileNames() {
         return fileNames;
     }
@@ -112,7 +192,7 @@ public class SelectQuery {
         return functions;
     }
 
-    public List<Predicate<Row>> getJoinConditions() {
+    public List<List<String>> getJoinConditions() {
         return joinConditions;
     }
 
