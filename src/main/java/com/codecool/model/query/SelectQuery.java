@@ -26,6 +26,7 @@ public class SelectQuery {
 
 
     public SelectQuery(String query) {
+
         super();
 
         this.query = query.toLowerCase().replace(";", "");
@@ -52,18 +53,18 @@ public class SelectQuery {
         String fileName = words.get(indexFrom + 1);
 
 
-        return Stream.concat(Stream.of(fileName), getJoinFileNames(query).stream())
+        return Stream.concat(Arrays.asList(fileName).stream(), getJoinFileNames(words).stream())
                      .collect(Collectors.toList());
     }
 
-    private List<String> getJoinFileNames(String query) {
-        List<String> words = Arrays.asList(query.split(" "));
-        int indexFrom = words.indexOf("join");
+    private List<String> getJoinFileNames(List<String> query) {
+        int indexFrom = query.indexOf("join");
 
 
-        if (indexFrom > -1 && indexFrom < words.size() - 1) {
-            String fileName = words.get(indexFrom + 1);
-            return Stream.concat(Stream.of(fileName), getJoinFileNames(query.substring(indexFrom+1)).stream())
+        if (indexFrom > -1 && indexFrom < query.size() - 1) {
+            String fileName = query.get(indexFrom + 1);
+            return Stream.concat(Arrays.asList(fileName).stream()
+                                ,getJoinFileNames(query.subList(indexFrom+1, query.size())).stream())
                     .collect(Collectors.toList());
 
         } else {
@@ -78,7 +79,6 @@ public class SelectQuery {
                      .collect(Collectors.toMap
                             (f -> f, f -> columns.stream()
                                                  .filter(c -> c.contains(f.getName()))
-                                                 .map(c -> c.split("[()]")[1])
                                                  .collect(Collectors.toList()))
                             );
     }
@@ -186,7 +186,7 @@ public class SelectQuery {
 
     }
 
-    List<List<String>> buildJoinCondition(List<String> condition) {
+    private List<List<String>> buildJoinCondition(List<String> condition) {
 
         if(condition.get(1).equals("=")) {
             int index = condition.indexOf("on");
@@ -204,10 +204,6 @@ public class SelectQuery {
         throw new WrongQueryFormatException("wrong ON condition");
 
     }
-
-
-
-
 
 
     public List<String> getFileNames() {
