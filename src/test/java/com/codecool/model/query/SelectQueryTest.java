@@ -151,4 +151,28 @@ class SelectQueryTest {
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
 
+    @Test
+    public void testWhereConditionPredicate_notEqualsOperator() {
+        String query = "select * from table.csv where age <> 20;";
+        selectQuery = new SelectQuery(query);
+
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("id", 2);
+        map2.put("first_name", "tomek");
+        map2.put("age", 30);
+        Row row2 = new Row(map2);
+
+        Map<String, Object> map3 = new HashMap<>();
+        map3.put("id", 3);
+        map3.put("first_name", "marian");
+        map3.put("age", 90);
+        Row row3 = new Row(map3);
+
+        List<Row> expectedRows = Arrays.asList(row2, row3);
+        List<Row> resultRows = getExampleRows().stream().filter(
+                selectQuery.getWhereCondition())
+                .collect(Collectors.toList());
+        assertEquals(expectedRows.toString(), resultRows.toString());
+    }
+
 }
