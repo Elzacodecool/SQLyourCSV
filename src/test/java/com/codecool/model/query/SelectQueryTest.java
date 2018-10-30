@@ -102,4 +102,35 @@ class SelectQueryTest {
 
         return Arrays.asList(row1, row2, row3);
     }
+
+    @Test
+    public void testWhereConditionPredicate_withoutCondition() {
+        String query = "select * from table.csv;";
+        selectQuery = new SelectQuery(query);
+
+        List<Row> resultRows = getExampleRows().stream().filter(
+                selectQuery.getWhereCondition())
+                .collect(Collectors.toList());
+        assertEquals(getExampleRows().toString(), resultRows.toString());
+    }
+
+    @Test
+    public void testWhereConditionPredicate_withGreaterOperator() {
+        String query = "select * from table.csv where age > 30;";
+        selectQuery = new SelectQuery(query);
+
+        Map<String, Object> map3 = new HashMap<>();
+        map3.put("id", 3);
+        map3.put("first_name", "marian");
+        map3.put("age", 90);
+        Row row3 = new Row(map3);
+
+        List<Row> expectedRows = Collections.singletonList(row3);
+        List<Row> resultRows = getExampleRows().stream().filter(
+                selectQuery.getWhereCondition())
+                .collect(Collectors.toList());
+        assertEquals(expectedRows.toString(), resultRows.toString());
+    }
+
+
 }
