@@ -24,8 +24,8 @@ public class SelectService extends QueryService {
     @Override
     public Table executeQuery(String query) {
         String customizedQuery = query.toLowerCase().replace(";", "");
-        String filename = getFilename(customizedQuery);
-        Table table = converter.convert("src/main/resources/" + filename);
+        String filename = getFilename(query.replace(";", ""));
+        Table table = converter.convert(filename);
         List<String> columnsToDisplay = getValidatedListColumns(customizedQuery, table);
         Predicate<Row> predicate = getPredicate(customizedQuery);
 
