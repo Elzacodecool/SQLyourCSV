@@ -176,10 +176,27 @@ public class SelectQuery {
 
     }
 
+    public List<String> getFileNames() {
+        return fileNames;
+    }
 
+    public Predicate<Row> getWhereCondition() {
+        return whereCondition;
+    }
 
+    public List<String> getColumnNames() {
+        return columnNames;
+    }
 
+    public Map<SQLAggregateFunctions, List<String>> getFunctions() {
+        return functions;
+    }
 
+    public List<Predicate<Row>> getJoinConditions() {
+        return joinConditions;
+    }
 
-
+    public String getGroupByColumn() {
+        return groupByColumn;
+    }
 }
