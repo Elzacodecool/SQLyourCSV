@@ -72,6 +72,7 @@ public class SelectQuery {
                      .collect(Collectors.toMap
                             (f -> f, f -> columns.stream()
                                                  .filter(c -> c.contains(f.getName()))
+                                                 .map(c -> c.split("[()]")[1])
                                                  .collect(Collectors.toList()))
                             );
     }
