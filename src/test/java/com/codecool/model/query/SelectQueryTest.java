@@ -63,7 +63,7 @@ class SelectQueryTest {
     }
 
     @Test
-    public void testWhereConditionPredicate() {
+    public void testWhereConditionPredicate_equalsOperator() {
         String query = "select * from table where id = 1";
         selectQuery = new SelectQuery(query);
 
@@ -78,8 +78,7 @@ class SelectQueryTest {
                 .collect(Collectors.toList());
         List<Row> expectedRows = Collections.singletonList(row1);
 
-        assertEquals(expectedRows.size(), resultRows.size());
-        assertEquals(expectedRows.toString(), resultRows.get(0).toString());
+        assertEquals(expectedRows.toString(), resultRows.toString());
     }
 
     private List<Row> getExampleRows() {
