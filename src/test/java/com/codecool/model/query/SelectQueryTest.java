@@ -244,6 +244,13 @@ class SelectQueryTest {
         List<List<String>> expectedConditions = Arrays.asList(Arrays.asList("id", "id2"), Arrays.asList("id", "id3"));
         assertEquals(expectedConditions, selectQuery.getJoinConditions());
     }
+    @Test
+    public void testJoinConditions_null() {
+        String query = "select * from table";
+        selectQuery = new SelectQuery(query);
+
+        assertNull(selectQuery.getJoinConditions());
+    }
 
     @Test
     public void testGroupBy() {
