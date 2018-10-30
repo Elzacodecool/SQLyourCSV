@@ -259,4 +259,10 @@ class SelectQueryTest {
 
         assertNull(selectQuery.getGroupByColumn());
     }
+    @Test
+    public void testGroupBy_missingColumnName() {
+        String query = "select * from table group by;";
+
+        assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
+    }
 }

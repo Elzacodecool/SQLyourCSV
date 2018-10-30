@@ -119,7 +119,7 @@ public class SelectQuery {
         int indexFrom = words.indexOf("group");
         if (indexFrom < 0) {
             return null;
-        } else if (indexFrom >= words.size() - 1) {
+        } else if (indexFrom >= words.size() - 2) {
             throw new WrongQueryFormatException("Missing columnName");
         }
 
