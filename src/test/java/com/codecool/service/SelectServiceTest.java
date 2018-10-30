@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class SelectServiceTest {
 
     @Autowired
-    SelectService service =  new SelectService();
+    SelectService service;
 
     @Test
     public void testGetFilenameByQuery() {
