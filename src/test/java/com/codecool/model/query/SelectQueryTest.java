@@ -193,6 +193,16 @@ class SelectQueryTest {
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
 
+    @Test
+    public void testWhereConditionPredicate_wrongOperator() {
+        String query = "select * from table.csv where age ! 20;";
+        selectQuery = new SelectQuery(query);
+
+        List<Row> resultRows = getExampleRows().stream()
+                .filter(selectQuery.getWhereCondition())
+                .collect(Collectors.toList());
+        assertTrue(resultRows.isEmpty());
+    }
 
     @Test
     public void testWhereConditionPredicate_withFewConditions() {
@@ -251,6 +261,14 @@ class SelectQueryTest {
 
         assertNull(selectQuery.getJoinConditions());
     }
+
+    @Test
+    public void testJoinCondition_wrongFormat() {
+        String query = "select * from table join table2 on id != id2;";
+
+        assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
+    }
+
 
     @Test
     public void testGroupBy() {
