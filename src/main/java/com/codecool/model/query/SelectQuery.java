@@ -190,10 +190,10 @@ public class SelectQuery {
 
         if(condition.get(1).equals("=")) {
             int index = condition.indexOf("on");
+            String[] columnSet = {condition.get(0), condition.get(2)};
             if(index < 0) {
-                return Arrays.asList(Arrays.asList(new String[0]));
+                return Arrays.asList(Arrays.asList(columnSet));
             } else {
-                String[] columnSet = {condition.get(0), condition.get(2)};
                 return Stream.concat(Arrays.asList(Arrays.asList(columnSet)).stream(),
                         buildJoinCondition(condition.subList(index+1, condition.size())).stream())
                         .collect(Collectors.toList());
@@ -230,5 +230,16 @@ public class SelectQuery {
         return joinConditions;
     }
 
+    public String getGroupByColumn() {
+        return groupByColumn;
+    }
 
+    public List<String> getAllColumns() {
+        List<String> functionColumns = getFunctions().values()
+                                                     .stream()
+                                                     .flatMap(List::stream)
+                                                     .collect(Collectors.toList());
+        return Stream.concat(getColumnNames().stream(), functionColumns.stream())
+                     .collect(Collectors.toList());
+    }
 }
