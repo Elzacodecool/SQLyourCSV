@@ -145,9 +145,10 @@ public class SelectQuery {
         String operator = condition.get(condition.size()-2);
         String value = condition.get(condition.size()-1);
 
+
         switch (operator) {
             case "=":
-                predicate = (row) -> row.getData().get(columnName).equals(value);
+                predicate = (row) -> row.getData().get(columnName).toString().equals(value);
                 break;
             case ">":
                 predicate = (row) -> Integer.valueOf(row.getData().get(columnName).toString()) > Integer.valueOf(value);
@@ -156,7 +157,7 @@ public class SelectQuery {
                 predicate = (row) -> Integer.valueOf(row.getData().get(columnName).toString()) < Integer.valueOf(value);
                 break;
             case "<>":
-                predicate = (row) -> !row.getData().get(columnName).equals(value);
+                predicate = (row) -> !row.getData().get(columnName).toString().equals(value);
                 break;
             case "like":
                 predicate = (row) -> row.getData().get(columnName) instanceof String &&
