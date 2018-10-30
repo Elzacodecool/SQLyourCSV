@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Service
@@ -29,14 +30,34 @@ public class SelectService {
     }
 
     public Table executeQuery(String query) {
-
         SelectQuery selectQuery = new SelectQuery(query);
-
+        Table table = joinTables(selectQuery.getFileNames(), selectQuery.getJoinConditions());
 
 
 
         return null;
 
+    }
+
+    private Table joinTables(List<String> fileNames, List<List<String>> conditions) {
+        Table firstTable = converter.convert(fileNames.get(0));
+        List<Table> joinTables = fileNames.stream()
+                    .limit(1)
+                    .map(filename -> converter.convert(filename))
+                    .collect(Collectors.toList());
+        Map<Table, List<String>> joinTableWithCondition = IntStream.range(0, fileNames.size() - 1)
+                .boxed()
+                .collect(Collectors.toMap(
+                        joinTables::get,
+                        conditions::get
+                ));
+
+        return joinTables.stream()
+                .reduce(firstTable, (joinedTable, table) -> joinTables(joinedTable, table, joinTableWithCondition.get(table)));
+    }
+
+    private Table joinTables(Table table1, Table table2, List<String> condition) {
+        return null;
     }
 
 //    private Table joinTables(Table table1, Table table2, List<String> condition) {
