@@ -3,6 +3,7 @@ package com.codecool.model.query;
 import com.codecool.exception.WrongQueryFormatException;
 import com.codecool.model.Row;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +34,7 @@ public class SelectQuery {
         fileNames = getFilenames(this.query);
         groupByColumn = getGroupBy(this.query);
         whereCondition = getPredicate(this.query);
+        joinConditions = getJoinConditions(this.query);
 
 
 
@@ -115,7 +117,7 @@ public class SelectQuery {
         List<String> words = Arrays.asList(query.split(" "));
         int indexFrom = words.indexOf("group");
         if (indexFrom < 0) {
-            throw new WrongQueryFormatException("Missing GROUP BY statement");
+            return null;
         } else if (indexFrom >= words.size() - 1) {
             throw new WrongQueryFormatException("Missing columnName");
         }
@@ -172,9 +174,41 @@ public class SelectQuery {
         return predicate;
     }
 
-    private List<Predicate<Row>> getJoinConditions(String query) {
+    private List<List<String>> getJoinConditions(String query) {
+        if(query.contains("on")) {
+            List<String> queryList = mapQueryToList(query);
+            List<String> condition = queryList.stream()
+                    .skip(queryList.indexOf("on") + 1)
+                    .collect(Collectors.toList());
+            return buildJoinCondition(condition);
+        }
+        return null;
 
     }
+
+    List<List<String>> buildJoinCondition(List<String> condition) {
+
+        if(condition.get(1).equals("=")) {
+            int index = condition.indexOf("on");
+            if(index < 0) {
+                return Arrays.asList(Arrays.asList(new String[0]));
+            } else {
+                String[] columnSet = {condition.get(0), condition.get(2)};
+                return Stream.concat(Arrays.asList(Arrays.asList(columnSet)).stream(),
+                        buildJoinCondition(condition.subList(index+1, condition.size())).stream())
+                        .collect(Collectors.toList());
+            }
+
+        }
+
+        throw new WrongQueryFormatException("wrong ON condition");
+
+    }
+
+
+
+
+
 
     public List<String> getFileNames() {
         return fileNames;
