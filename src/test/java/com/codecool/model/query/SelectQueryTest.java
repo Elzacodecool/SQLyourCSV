@@ -132,5 +132,23 @@ class SelectQueryTest {
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
 
+    @Test
+    public void testWhereConditionStatement_withSmallerOperator() {
+        String query = "select * from table.csv where age < 30;";
+        selectQuery = new SelectQuery(query);
+
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("id", 1);
+        map1.put("first_name", "ala");
+        map1.put("age", 20);
+        Row row1 = new Row(map1);
+
+
+        List<Row> expectedRows = Collections.singletonList(row1);
+        List<Row> resultRows = getExampleRows().stream().filter(
+                selectQuery.getWhereCondition())
+                .collect(Collectors.toList());
+        assertEquals(expectedRows.toString(), resultRows.toString());
+    }
 
 }
