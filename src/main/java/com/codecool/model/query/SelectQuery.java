@@ -16,7 +16,7 @@ public class SelectQuery {
 
     private String query;
 
-    private List<String> fileName;
+    private List<String> fileNames;
     private Predicate<Row> whereCondition;
     private List<String> columnNames;
     private Map<SQLAggregateFunctions, List<String>> functions;
@@ -94,11 +94,27 @@ public class SelectQuery {
                 .collect(Collectors.toList());
     }
 
+    public List<String> getFileNames() {
+        return fileNames;
+    }
 
+    public Predicate<Row> getWhereCondition() {
+        return whereCondition;
+    }
 
+    public List<String> getColumnNames() {
+        return columnNames;
+    }
 
+    public Map<SQLAggregateFunctions, List<String>> getFunctions() {
+        return functions;
+    }
 
+    public List<Predicate<Row>> getJoinConditions() {
+        return joinConditions;
+    }
 
-
-
+    public String getGroupByColumn() {
+        return groupByColumn;
+    }
 }
