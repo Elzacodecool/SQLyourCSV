@@ -237,6 +237,15 @@ class SelectQueryTest {
     }
 
     @Test
+    public void testJoinConditions() {
+        String query = "select * from table join table2 on id=id2 join table3 on id=id3";
+        selectQuery = new SelectQuery(query);
+
+        List<List<String>> expectedConditions = Arrays.asList(Arrays.asList("id", "id2"), Arrays.asList("id", "id3"));
+        assertEquals(expectedConditions, selectQuery.getJoinConditions());
+    }
+
+    @Test
     public void testGroupBy() {
         String query = "select * from table group by name;";
         selectQuery = new SelectQuery(query);
