@@ -52,7 +52,7 @@ public class SelectQuery {
         String fileName = words.get(indexFrom + 1);
 
 
-        return Stream.concat(Arrays.asList(fileName).stream(), getJoinFileNames(query).stream())
+        return Stream.concat(Stream.of(fileName), getJoinFileNames(query).stream())
                      .collect(Collectors.toList());
     }
 
@@ -63,7 +63,7 @@ public class SelectQuery {
 
         if (indexFrom > -1 && indexFrom < words.size() - 1) {
             String fileName = words.get(indexFrom + 1);
-            return Stream.concat(Arrays.asList(fileName).stream(), getJoinFileNames(query.substring(indexFrom+1)).stream())
+            return Stream.concat(Stream.of(fileName), getJoinFileNames(query.substring(indexFrom+1)).stream())
                     .collect(Collectors.toList());
 
         } else {

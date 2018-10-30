@@ -26,7 +26,7 @@ class SelectQueryTest {
         assertEquals("table", selectQuery.getFileNames().get(0));
     }
     @Test
-    public void testFilenameByQuery_withoutFromStatament() {
+    public void testFilenameByQuery_withoutFromStatement() {
         String query = "select * table";
         assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
     }
@@ -34,6 +34,13 @@ class SelectQueryTest {
     public void testFilename_withoutFileName() {
         String query = "select * from";
         assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
+    }
+    @Test
+    public void testFileNames_withJoins() {
+        String query = "select * from table join table2 on id=id2 join table3 on id=id2";
+        selectQuery = new SelectQuery(query);
+
+        assertEquals(Arrays.asList("table", "table2", "table3"), selectQuery.getFileNames());
     }
 
     @Test
