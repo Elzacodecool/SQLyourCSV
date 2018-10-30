@@ -73,8 +73,8 @@ class SelectQueryTest {
         map1.put("age", 20);
         Row row1 = new Row(map1);
 
-        List<Row> resultRows = getExampleRows().stream().filter(
-                selectQuery.getWhereCondition())
+        List<Row> resultRows = getExampleRows().stream()
+                .filter(selectQuery.getWhereCondition())
                 .collect(Collectors.toList());
         List<Row> expectedRows = Collections.singletonList(row1);
 
@@ -108,8 +108,8 @@ class SelectQueryTest {
         String query = "select * from table.csv;";
         selectQuery = new SelectQuery(query);
 
-        List<Row> resultRows = getExampleRows().stream().filter(
-                selectQuery.getWhereCondition())
+        List<Row> resultRows = getExampleRows().stream()
+                .filter(selectQuery.getWhereCondition())
                 .collect(Collectors.toList());
         assertEquals(getExampleRows().toString(), resultRows.toString());
     }
@@ -126,8 +126,8 @@ class SelectQueryTest {
         Row row3 = new Row(map3);
 
         List<Row> expectedRows = Collections.singletonList(row3);
-        List<Row> resultRows = getExampleRows().stream().filter(
-                selectQuery.getWhereCondition())
+        List<Row> resultRows = getExampleRows().stream()
+                .filter(selectQuery.getWhereCondition())
                 .collect(Collectors.toList());
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
@@ -145,8 +145,8 @@ class SelectQueryTest {
 
 
         List<Row> expectedRows = Collections.singletonList(row1);
-        List<Row> resultRows = getExampleRows().stream().filter(
-                selectQuery.getWhereCondition())
+        List<Row> resultRows = getExampleRows().stream()
+                .filter(selectQuery.getWhereCondition())
                 .collect(Collectors.toList());
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
@@ -169,10 +169,85 @@ class SelectQueryTest {
         Row row3 = new Row(map3);
 
         List<Row> expectedRows = Arrays.asList(row2, row3);
-        List<Row> resultRows = getExampleRows().stream().filter(
-                selectQuery.getWhereCondition())
+        List<Row> resultRows = getExampleRows().stream()
+                .filter(selectQuery.getWhereCondition())
                 .collect(Collectors.toList());
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
 
+    @Test
+    public void testWhereConditionPredicate_withLikeOperator() {
+        String query = "select * from table.csv where first_name like 'ala';";
+        selectQuery = new SelectQuery(query);
+
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("id", 1);
+        map1.put("first_name", "ala");
+        map1.put("age", 20);
+        Row row1 = new Row(map1);
+
+        List<Row> expectedRows = Collections.singletonList(row1);
+        List<Row> resultRows = getExampleRows().stream()
+                .filter(selectQuery.getWhereCondition())
+                .collect(Collectors.toList());
+        assertEquals(expectedRows.toString(), resultRows.toString());
+    }
+
+
+    @Test
+    public void testWhereConditionPredicate_withFewConditions() {
+        String query = "select * from table.csv where id = 1 or first_name like 'marian' and age > 20";
+        selectQuery = new SelectQuery(query);
+
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("id", 3);
+        map1.put("first_name", "marian");
+        map1.put("age", 90);
+        Row row1 = new Row(map1);
+
+        List<Row> expectedRows = Collections.singletonList(row1);
+        List<Row> resultRows = getExampleRows().stream()
+                .filter(selectQuery.getWhereCondition())
+                .collect(Collectors.toList());
+        assertEquals(expectedRows.toString(), resultRows.toString());
+    }
+
+    @Test
+    public void testWhereConditionPredicate_withFewConditions2() {
+        String query = "select * from table.csv where id = 1 and first_name like 'marian' or age > 20";
+        selectQuery = new SelectQuery(query);
+
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("id", 2);
+        map1.put("first_name", "tomek");
+        map1.put("age", 30);
+        Row row1 = new Row(map1);
+
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("id", 3);
+        map2.put("first_name", "marian");
+        map2.put("age", 90);
+        Row row2 = new Row(map2);
+
+        List<Row> expectedRows = Arrays.asList(row1, row2);
+        List<Row> resultRows = getExampleRows().stream()
+                .filter(selectQuery.getWhereCondition())
+                .collect(Collectors.toList());
+        assertEquals(expectedRows.toString(), resultRows.toString());
+    }
+
+    @Test
+    public void testGroupBy() {
+        String query = "select * from table group by name;";
+        selectQuery = new SelectQuery(query);
+
+        assertEquals("name", selectQuery.getGroupByColumn());
+    }
+    @Test
+    public void testGroupBy_null() {
+        String query = "select * from table;";
+        selectQuery = new SelectQuery(query);
+
+        assertNull(selectQuery.getGroupByColumn());
+    }
 }
