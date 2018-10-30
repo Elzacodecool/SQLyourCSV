@@ -37,4 +37,23 @@ class SelectQueryTest {
         assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
     }
 
+    @Test
+    public void testListColumns() {
+        String query = "select max(id), id, name, min(count), age from abc.csv";
+        selectQuery = new SelectQuery(query);
+
+        List<String> expectedColumns = Arrays.asList("id", "name", "age");
+
+        assertEquals(expectedColumns, selectQuery.getColumnNames());
+    }
+
+   @Test
+    public void testFunctionsMap() {
+        String query = "select max(id), id, name, min(count), min(age), age from abc.csv";
+        selectQuery = new SelectQuery(query);
+
+        assertEquals(Collections.singletonList("id"), selectQuery.getFunctions().get(SQLAggregateFunctions.MAX));
+        assertEquals(Arrays.asList("count", "age"), selectQuery.getFunctions().get(SQLAggregateFunctions.MIN));
+    }
+
 }
