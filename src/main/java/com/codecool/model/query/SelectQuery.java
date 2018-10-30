@@ -3,13 +3,8 @@ package com.codecool.model.query;
 import com.codecool.exception.WrongQueryFormatException;
 import com.codecool.model.Row;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -232,12 +227,12 @@ public class SelectQuery {
         return groupByColumn;
     }
 
-    public List<String> getAllColumns() {
+    public Set<String> getAllColumns() {
         List<String> functionColumns = getFunctions().values()
                                                      .stream()
                                                      .flatMap(List::stream)
                                                      .collect(Collectors.toList());
         return Stream.concat(getColumnNames().stream(), functionColumns.stream())
-                     .collect(Collectors.toList());
+                     .collect(Collectors.toSet());
     }
 }
