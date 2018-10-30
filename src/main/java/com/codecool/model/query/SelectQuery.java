@@ -27,8 +27,9 @@ public class SelectQuery {
     public SelectQuery(String query) {
         super();
         this.query = query;
-        functions = getFunctions(query);
+        fileNames = getFilename(query);
         columnNames = getColumnNames(query);
+        functions = getFunctions(query);
 
 
     }
