@@ -3,7 +3,6 @@ package com.codecool.model.query;
 import com.codecool.exception.WrongQueryFormatException;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -21,14 +20,14 @@ class SelectQueryTest {
 
     @Test
     public void testFileName() {
-        String query = "select * from abc.csv";
+        String query = "select * from table";
         selectQuery = new SelectQuery(query);
 
-        assertEquals("abc.csv", selectQuery.getFileNames().get(0));
+        assertEquals("table", selectQuery.getFileNames().get(0));
     }
     @Test
     public void testFilenameByQuery_withoutFromStatament() {
-        String query = "select * abc.csv";
+        String query = "select * table";
         assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
     }
     @Test
@@ -39,7 +38,7 @@ class SelectQueryTest {
 
     @Test
     public void testListColumns() {
-        String query = "select max(id), id, name, min(count), age from abc.csv";
+        String query = "select max(id), id, name, min(count), age from table";
         selectQuery = new SelectQuery(query);
 
         List<String> expectedColumns = Arrays.asList("id", "name", "age");
@@ -49,7 +48,7 @@ class SelectQueryTest {
 
    @Test
     public void testFunctionsMap() {
-        String query = "select max(id), id, name, min(count), min(age), age from abc.csv";
+        String query = "select max(id), id, name, min(count), min(age), age from table";
         selectQuery = new SelectQuery(query);
 
         assertEquals(Collections.singletonList("id"), selectQuery.getFunctions().get(SQLAggregateFunctions.MAX));
