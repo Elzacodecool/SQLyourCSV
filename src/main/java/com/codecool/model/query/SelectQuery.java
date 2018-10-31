@@ -117,7 +117,6 @@ public class SelectQuery {
                      .collect(Collectors.toMap
                             (f -> f, f -> columns.stream()
                                                  .filter(c -> c.contains(f.getName()))
-                                                 .map(c -> c.split("[()]")[1])
                                                  .collect(Collectors.toList()))
                             );
     }
@@ -134,7 +133,8 @@ public class SelectQuery {
     }
 
     private List<String> getListColumns(String query) {
-        return Arrays.stream(query.split(" "))
+        String columnsPart = query.substring(query.indexOf("select"), query.indexOf("from"));
+        return Arrays.stream(columnsPart.split(" "))
                 .filter(word -> query.indexOf(word) > query.indexOf("select"))
                 .filter(word -> query.indexOf(word) < query.indexOf("from"))
                 .map(word -> word.replace(",", ""))

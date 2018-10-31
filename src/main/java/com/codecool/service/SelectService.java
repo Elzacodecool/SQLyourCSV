@@ -9,10 +9,9 @@ import com.codecool.model.query.SelectQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -47,13 +46,43 @@ public class SelectService {
     private Table getTableWithColumns(Table table,
                                       List<String> columnNames,
                                       Map<SQLAggregateFunctions, List<String>> functions) {
-        return null;
+
+        if (!columnNames.isEmpty()) {
+            return getTableWithColumns(table, columnNames);
+        } else {
+            return getTableWithColumns(table, functions);
+        }
     }
+
+    private Table getTableWithColumns(Table table,
+                                      List<String> columnNames) {
+
+        List<Row> rows = table.getRows().stream()
+                .map(row -> getUpdatedRowWithColumns(row, columnNames))
+                .collect(Collectors.toList());
+
+        return new Table(columnNames, rows);
+    }
+
+    private Table getTableWithColumns(Table table, Map<SQLAggregateFunctions, List<String>> functions) {
+        List<String> columnNames = getColumnNamesFunctions(functions);
+        Row row = getRowWithFunctions(table.getRows(), functions);
+
+        return new Table(columnNames, Collections.singletonList(row));
+    }
+
+
 
     private Table getTableWithColumns(List<Table> table,
                                       List<String> columnNames,
                                       Map<SQLAggregateFunctions, List<String>> functions) {
         return null;
+    }
+
+    private List<String> getColumnNamesFunctions(Map<SQLAggregateFunctions, List<String>> functions) {
+        return functions.values().stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     private List<Table> groupBy(Table table, String groupByColumn) {
@@ -117,7 +146,7 @@ public class SelectService {
         return new Table(columns, rows);
     }
 
-    Row mergeRows(Row row1, Row row2) {
+    private Row mergeRows(Row row1, Row row2) {
         Map<String, Object> rowData = Stream.of(row2.getData(), row1.getData()).flatMap(m -> m.entrySet().stream())
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -125,32 +154,34 @@ public class SelectService {
     }
 
 
-    Row getUpdatedRowWithColumns(Row row, List<String> columns) {
+    private Row getUpdatedRowWithColumns(Row row, List<String> columns) {
         return new Row(
                 columns.stream()
                         .collect(Collectors.toMap(column -> column, column -> row.getData().get(column)))
         );
     }
 
-//    List<String> getValidatedListColumns(SelectQuery selectQuery, Table table) {
-//        List<String> columns = selectQuery.getAllColumns();
-//
+    private Row getRowWithFunctions(List<Row> rows, Map<SQLAggregateFunctions, List<String>> functions) {
+        Function<String, List<Integer>> valuesFromColumn = columnName -> rows.stream()
+                .map(row -> row.getData().get(columnName).toString())
+                .map(Integer::valueOf)
+                .collect(Collectors.toList());
 
-//        if (columns.contains("*")) {
-//            return table.getColumnNames();
-//        }
-//
-//        if (checkIfColumnsExistInTable(columns, table)) {
-//            return columns;
-//        }
-//
-//        throw new WrongQueryFormatException("No column in table");
-//    }
+        BiFunction<SQLAggregateFunctions, String, Double> calculateFunction = (function, name) ->
+                function.calculate(valuesFromColumn.apply(name.split("[()]")[1]));
 
-    private boolean checkIfColumnsExistInTable(List<String> columns, Table table) {
-        return table.getColumnNames().containsAll(columns);
+        Stream<Map<String, Object>> mapStream = functions.keySet().stream()
+                                    .map(function ->
+                                            functions.get(function).stream()
+                                            .collect(Collectors.toMap(
+                                                  name -> name,
+                                                  name -> (Object) calculateFunction.apply(function, name)
+                                            ))
+                                    );
+
+        Map<String, Object> map = mapStream.flatMap(m -> m.entrySet().stream())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return new Row(map);
     }
-
-
-
 }
