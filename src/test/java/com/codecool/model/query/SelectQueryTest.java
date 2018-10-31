@@ -271,7 +271,6 @@ class SelectQueryTest {
         assertNull(selectQuery.getJoinConditions());
     }
 
-
     @Test
     public void testGroupBy() {
         String query = "select * from table group by name;";
