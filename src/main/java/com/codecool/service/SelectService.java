@@ -60,11 +60,20 @@ public class SelectService {
     private Table getTableWithColumns(Table table,
                                       List<String> columnNames) {
 
+        List<String> columns = addColumnsIfNeeded(columnNames, table.getColumnNames());
         List<Row> rows = table.getRows().stream()
-                .map(row -> getUpdatedRowWithColumns(row, columnNames))
+                .map(row -> getUpdatedRowWithColumns(row, columns))
                 .collect(Collectors.toList());
 
-        return new Table(columnNames, rows);
+        return new Table(columns, rows);
+    }
+
+    private List<String> addColumnsIfNeeded(List<String> columns, List<String> columnsToAdd) {
+        if (columns.contains("*")) {
+            int index = columns.indexOf("*");
+            return concatListsString(concatListsString(columns.subList(0, index), columnsToAdd), columns.subList(index + 1, columns.size()));
+        }
+        return columns;
     }
 
     private Table getTableWithColumns(Table table, Map<SQLAggregateFunctions, List<String>> functions) {
@@ -74,12 +83,46 @@ public class SelectService {
         return new Table(columnNames, Collections.singletonList(row));
     }
 
-
-
-    private Table getTableWithColumns(List<Table> table,
-                                      List<String> columnNames,
+    private Table getTableWithColumns(List<Table> tables,
+                                      List<String> columns,
                                       Map<SQLAggregateFunctions, List<String>> functions) {
-        return null;
+        if (columns.isEmpty()) {
+            return getTableWithColumns(tables, functions);
+        } else {
+            return getTableWithColumns(tables, columns.get(0), functions);
+        }
+    }
+
+
+    private Table getTableWithColumns(List<Table> tables,
+                                      Map<SQLAggregateFunctions, List<String>> functions) {
+        List<Row> rows = tables.stream()
+                .map(table -> getRowWithFunctions(table.getRows(), functions))
+                .collect(Collectors.toList());
+
+        List<String> columnsToTable = rows.isEmpty()
+                ? getColumnNamesFunctions(functions)
+                : new ArrayList<>(rows.get(0).getData().keySet());
+
+        return new Table(columnsToTable, rows);
+    }
+
+    private Table getTableWithColumns(List<Table> tables,
+                                      String column,
+                                      Map<SQLAggregateFunctions, List<String>> functions) {
+        List<Row> rows = tables.stream()
+                .map(table -> getRowWithFunctions(table.getRows(), functions, column))
+                .collect(Collectors.toList());
+
+        List<String> columnsToTable = rows.isEmpty()
+                ? concatListsString(Collections.singletonList(column), getColumnNamesFunctions(functions))
+                : new ArrayList<>(rows.get(0).getData().keySet());
+
+        return new Table(columnsToTable, rows);
+    }
+
+    private List<String> concatListsString(List<String> list1, List<String> list2) {
+        return Stream.concat(list1.stream(), list2.stream()).collect(Collectors.toList());
     }
 
     private List<String> getColumnNamesFunctions(Map<SQLAggregateFunctions, List<String>> functions) {
@@ -96,7 +139,7 @@ public class SelectService {
         return valuesFromColumn.stream()
                 .map(value ->
                         table.getRows().stream()
-                            .filter(row -> row.getData().get(groupByColumn).equals(value))
+                            .filter(row -> row.getData().get(groupByColumn).toString().equals(value.toString()))
                             .collect(Collectors.toList())
                         )
                 .map(rows -> new Table(table.getColumnNames(), rows))
@@ -162,6 +205,20 @@ public class SelectService {
                 columns.stream()
                         .collect(Collectors.toMap(column -> column, column -> row.getData().get(column)))
         );
+    }
+
+    private Row getRowWithFunctions(List<Row> rows, Map<SQLAggregateFunctions, List<String>> functions, String column) {
+        return new Row (
+                concatMaps(
+                        getRowWithFunctions(rows, functions).getData(),
+                        Collections.singletonMap(column, rows.get(0).getData().get(column))
+                )
+        );
+    }
+
+    private Map<String, Object> concatMaps(Map<String, Object> map1, Map<String, Object> map2) {
+        return Stream.of(map1, map2).flatMap(m -> m.entrySet().stream())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private Row getRowWithFunctions(List<Row> rows, Map<SQLAggregateFunctions, List<String>> functions) {
