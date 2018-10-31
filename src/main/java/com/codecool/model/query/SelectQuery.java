@@ -91,7 +91,8 @@ public class SelectQuery {
     }
 
     private List<String> getListColumns(String query) {
-        return Arrays.stream(query.split(" "))
+        String columnsPart = query.substring(query.indexOf("select"), query.indexOf("from"));
+        return Arrays.stream(columnsPart.split(" "))
                 .filter(word -> query.indexOf(word) > query.indexOf("select"))
                 .filter(word -> query.indexOf(word) < query.indexOf("from"))
                 .map(word -> word.replace(",", ""))
