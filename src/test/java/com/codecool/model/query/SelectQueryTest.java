@@ -18,6 +18,23 @@ class SelectQueryTest {
 
     private SelectQuery selectQuery;
 
+    private String[] correctQueries = {"select * from table;",
+                                       "select a,b,c,d from table;",
+                                       "select a,b,c from table join table2 on id=inner_id;",
+                                       "select * from table join table2 on a=b;"};
+
+    private String[] incorrectQueries = {"dkajdsa",
+                                         "select from tabela",
+                                         "select abc from table join table2",
+                                         "select cc table from join table2",
+                                         "select * table join on from table2",
+                                         "select abc from table from table2 join table3",
+                                         "select * from table abc join table2 on id = id2",
+                                         "select * from table join table2 on id = id2 AND id = id",
+                                         "select sum(abc), a, v from table join table2 on id = id2 AND id = id"};
+
+
+
     @Test
     public void testFileName() {
         String query = "select * from table";
@@ -300,4 +317,22 @@ class SelectQueryTest {
 
         assertEquals(expectedColumns, selectQuery.getAllColumns());
     }
+
+    @Test
+    public void testCorrectQueries() {
+        for(int i=0; i<correctQueries.length; i++) {
+            System.out.println(i);
+            assertTrue(new SelectQuery(correctQueries[i]).isValidate());
+        }
+    }
+
+    @Test
+    public void testIncorrectQueries() {
+        for(int i=0; i<incorrectQueries.length; i++) {
+            System.out.println(i);
+            assertFalse(new SelectQuery(incorrectQueries[i]).isValidate());
+        }
+    }
+
+
 }
