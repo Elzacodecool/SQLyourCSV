@@ -146,7 +146,7 @@ public class SelectService {
         return new Table(columns, rows);
     }
 
-    Row mergeRows(Row row1, Row row2) {
+    private Row mergeRows(Row row1, Row row2) {
         Map<String, Object> rowData = Stream.of(row2.getData(), row1.getData()).flatMap(m -> m.entrySet().stream())
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -154,7 +154,7 @@ public class SelectService {
     }
 
 
-    Row getUpdatedRowWithColumns(Row row, List<String> columns) {
+    private Row getUpdatedRowWithColumns(Row row, List<String> columns) {
         return new Row(
                 columns.stream()
                         .collect(Collectors.toMap(column -> column, column -> row.getData().get(column)))
