@@ -78,7 +78,7 @@ public class SelectService {
 
     private Table getTableWithColumns(Table table, Map<SQLAggregateFunctions, List<String>> functions) {
         Row row = getRowWithFunctions(table.getRows(), functions);
-        List<String> columnNames = new ArrayList<>(row.getData().keySet());
+        List<String> columnNames = getColumnNames(row);
 
         return new Table(columnNames, Collections.singletonList(row));
     }
@@ -102,9 +102,13 @@ public class SelectService {
 
         List<String> columnsToTable = rows.isEmpty()
                 ? getColumnNamesFunctions(functions)
-                : new ArrayList<>(rows.get(0).getData().keySet());
+                : getColumnNames(rows.get(0));
 
         return new Table(columnsToTable, rows);
+    }
+
+    private List<String> getColumnNames(Row row) {
+        return new ArrayList<>(row.getData().keySet());
     }
 
     private Table getTableWithColumns(List<Table> tables,
@@ -174,10 +178,6 @@ public class SelectService {
     }
 
     private Table joinTables(Table table1, Table table2, List<String> condition) {
-
-        List<String> columns = Stream.concat(table2.getColumnNames().stream(), table1.getColumnNames().stream())
-                                     .collect(Collectors.toList());
-
         String firstColumn = condition.get(0);
         String secondColumn = condition.get(1);
 
@@ -187,12 +187,21 @@ public class SelectService {
                                 .filter(row2 -> row.getData().get(firstColumn).toString().equals(row2.getData().get(secondColumn).toString()))
                                 .findFirst().orElse(null)
                 ))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+
+        List<String> columns = rows.isEmpty()
+                ? concatListsString(table1.getColumnNames(), table2.getColumnNames())
+                : getColumnNames(rows.get(0));
 
         return new Table(columns, rows);
     }
 
     private Row mergeRows(Row row1, Row row2) {
+        if (row1 == null | row2 == null) {
+            return null;
+        }
+
         Map<String, Object> rowData = Stream.of(row2.getData(), row1.getData()).flatMap(m -> m.entrySet().stream())
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
