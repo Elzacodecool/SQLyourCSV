@@ -74,7 +74,9 @@ public class SelectQuery {
                                        .reduce((x, y) -> x.toString() + y.toString())
                                        .orElse(null).contains("joinon")) {
             isValidated = false;
-        } else if(queryListBeforeWHERE.indexOf("join") - queryListBeforeWHERE.indexOf("from") != 1) {
+        } else if(queryListBeforeWHERE.contains("join") && queryListBeforeWHERE.indexOf("join") - queryListBeforeWHERE.indexOf("from") != 2) {
+            isValidated = false;
+        } else if(queryListBeforeWHERE.contains("and") || queryListBeforeWHERE.contains("or")) {
             isValidated = false;
         }
         return isValidated;
