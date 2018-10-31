@@ -62,6 +62,26 @@ public class SelectServiceTest {
         assertEquals(expected, service.executeQuery(query).toString());
     }
 
+    @Test
+    public void testExecuteQuery_where() {
+        String query = "select * from table.csv where age < 50";
+
+        String expected = "        id | first_name |        age\n" +
+                          "         1 |        ala |         20\n" +
+                          "         2 |      tomek |         30";
+
+        assertEquals(expected, service.executeQuery(query).toString());
+    }
+
+    @Test
+    public void testExecuteQuery_groupBy() {
+        String query = "select gender, avg(age) from groupbytable.csv group by gender;";
+        String expected = "    gender |   avg(age)\n" +
+                          "         f |       30.0\n" +
+                          "         m |       38.0";
+
+        assertEquals(expected, service.executeQuery(query).toString());
+    }
 
 
 }
