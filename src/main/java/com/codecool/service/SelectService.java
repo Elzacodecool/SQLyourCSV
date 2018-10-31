@@ -33,13 +33,16 @@ public class SelectService {
         SelectQuery selectQuery = new SelectQuery(query);
         Table table = joinTables(selectQuery.getFileNames(), selectQuery.getJoinConditions());
 
-        System.out.println(table.toString());
         return table;
     }
 
 
     private Table joinTables(List<String> fileNames, List<List<String>> conditions) {
         Table firstTable = converter.convert(fileNames.get(0));
+        if(fileNames.size() == 1) {
+            return firstTable;
+        }
+
         List<Table> joinTables = fileNames.stream()
                     .skip(1)
                     .map(filename -> converter.convert(filename))
