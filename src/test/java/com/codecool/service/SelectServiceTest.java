@@ -24,7 +24,7 @@ public class SelectServiceTest {
 
     @Test
     public void testExecuteQuery_withEquals() {
-        String query = "select * from table.csv where age=20;";
+        String query = "select id, first_name, age from table.csv where age=20;";
 
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 1);
@@ -41,7 +41,7 @@ public class SelectServiceTest {
 
     @Test
     public void testExecuteQuery_withGreater() {
-        String query = "select * from table.csv where age > 30;";
+        String query = "select id, first_name, age from table.csv where age > 30;";
 
         Map<String, Object> map3 = new HashMap<>();
         map3.put("id", 3);
@@ -116,7 +116,7 @@ public class SelectServiceTest {
 
     @Test
     public void testExecuteQuery_withFewConditions() {
-        String query = "select * from table.csv where id = 1 or first_name like 'marian' and age > 20";
+        String query = "select id, first_name, age from table.csv where id = 1 or first_name like 'marian' and age > 20";
 
 
         Map<String, Object> map1 = new HashMap<>();
