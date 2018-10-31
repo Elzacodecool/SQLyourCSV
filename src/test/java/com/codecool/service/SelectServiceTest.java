@@ -39,6 +39,16 @@ public class SelectServiceTest {
         assertEquals(expected, service.executeQuery(query).toString());
     }
 
+    @Test
+    public void testExecuteQuery_functions() {
+        String query = "select sum(age) from table.csv;";
+
+        String expected = "  sum(age)\n" +
+                          "     140.0";
+
+        assertEquals(expected, service.executeQuery(query).toString());
+    }
+
    @Test
     public void testExecuteQuery_join() {
         String query = "select * from table.csv " +
