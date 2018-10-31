@@ -43,16 +43,6 @@ class SelectQueryTest {
         assertEquals("table", selectQuery.getFileNames().get(0));
     }
     @Test
-    public void testFilenameByQuery_withoutFromStatement() {
-        String query = "select * table";
-        assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
-    }
-    @Test
-    public void testFilename_withoutFileName() {
-        String query = "select * from";
-        assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
-    }
-    @Test
     public void testFileNames_withJoins() {
         String query = "select * from table join table2 on id=id2 join table3 on id=id2";
         selectQuery = new SelectQuery(query);
@@ -75,8 +65,8 @@ class SelectQueryTest {
         String query = "select max(id), id, name, min(count), min(age), age from table";
         selectQuery = new SelectQuery(query);
 
-        assertEquals(Collections.singletonList("id"), selectQuery.getFunctions().get(SQLAggregateFunctions.MAX));
-        assertEquals(Arrays.asList("count", "age"), selectQuery.getFunctions().get(SQLAggregateFunctions.MIN));
+        assertEquals(Collections.singletonList("max(id)"), selectQuery.getFunctions().get(SQLAggregateFunctions.MAX));
+        assertEquals(Arrays.asList("min(count)", "min(age)"), selectQuery.getFunctions().get(SQLAggregateFunctions.MIN));
     }
 
     @Test
@@ -280,14 +270,6 @@ class SelectQueryTest {
     }
 
     @Test
-    public void testJoinCondition_wrongFormat() {
-        String query = "select * from table join table2 on id != id2;";
-
-        assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
-    }
-
-
-    @Test
     public void testGroupBy() {
         String query = "select * from table group by name;";
         selectQuery = new SelectQuery(query);
@@ -301,19 +283,13 @@ class SelectQueryTest {
 
         assertNull(selectQuery.getGroupByColumn());
     }
-    @Test
-    public void testGroupBy_missingColumnName() {
-        String query = "select * from table group by;";
-
-        assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
-    }
 
     @Test
     public void testGetAllColumns() {
         String query = "select max(id), id, name, min(count), age from table";
         selectQuery = new SelectQuery(query);
 
-        Set<String> expectedColumns = new HashSet<>(Arrays.asList("id", "name",  "age", "count"));
+        Set<String> expectedColumns = new HashSet<>(Arrays.asList("min(count)", "max(id)",  "name", "id", "age"));
 
         assertEquals(expectedColumns, selectQuery.getAllColumns());
     }
