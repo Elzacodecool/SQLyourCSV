@@ -60,11 +60,20 @@ public class SelectService {
     private Table getTableWithColumns(Table table,
                                       List<String> columnNames) {
 
+        List<String> columns = addColumnsIfNeeded(columnNames, table.getColumnNames());
         List<Row> rows = table.getRows().stream()
-                .map(row -> getUpdatedRowWithColumns(row, columnNames))
+                .map(row -> getUpdatedRowWithColumns(row, columns))
                 .collect(Collectors.toList());
 
-        return new Table(columnNames, rows);
+        return new Table(columns, rows);
+    }
+
+    private List<String> addColumnsIfNeeded(List<String> columns, List<String> columnsToAdd) {
+        if (columns.contains("*")) {
+            int index = columns.indexOf("*");
+            return concatListsString(concatListsString(columns.subList(0, index), columnsToAdd), columns.subList(index + 1, columns.size()));
+        }
+        return columns;
     }
 
     private Table getTableWithColumns(Table table, Map<SQLAggregateFunctions, List<String>> functions) {
