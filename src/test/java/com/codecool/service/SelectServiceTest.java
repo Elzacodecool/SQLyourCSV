@@ -1,5 +1,6 @@
 package com.codecool.service;
 
+import com.codecool.exception.WrongQueryFormatException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -63,6 +65,16 @@ public class SelectServiceTest {
     }
 
     @Test
+    public void testExecuteQuery_join_withoutResults() {
+        String query = "select * from table.csv " +
+                                 "join jointable.csv on id=surname";
+
+        String expected = "        id | first_name |        age | id_surname |    surname\n";
+
+        assertEquals(expected, service.executeQuery(query).toString());
+    }
+
+    @Test
     public void testExecuteQuery_where() {
         String query = "select * from table.csv where age < 50";
 
@@ -84,6 +96,14 @@ public class SelectServiceTest {
     }
 
     @Test
+    public void testExecuteQuery_groupBy_emptyTable() {
+        String query = "select gender, avg(age) from groupbytable.csv where gender=x group by gender;";
+        String expected = "    gender |   avg(age)\n";
+
+        assertEquals(expected, service.executeQuery(query).toString());
+    }
+
+    @Test
     public void testExecuteQuery_groupBy_onlyFunctions() {
         String query = "select avg(age) from groupbytable.csv group by gender;";
         String expected = "  avg(age)\n" +
@@ -93,5 +113,19 @@ public class SelectServiceTest {
         assertEquals(expected, service.executeQuery(query).toString());
     }
 
+    @Test
+    public void testExecuteQuery_groupBy_onlyFunctions_emptyTable() {
+        String query = "select avg(age) from groupbytable.csv where gender=x group by gender;";
+        String expected = "  avg(age)\n";
+
+        assertEquals(expected, service.executeQuery(query).toString());
+    }
+
+    @Test
+    public void testWrongQuery() {
+        String query = "wrong query";
+
+        assertThrows(WrongQueryFormatException.class, () -> new SelectService().executeQuery(query));
+    }
 }
 
