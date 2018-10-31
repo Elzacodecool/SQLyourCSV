@@ -50,7 +50,7 @@ public class ConverterTest {
         List<Row> rows = Arrays.asList(row1, row2, row3);
         Table expectedTable = new Table(columnNames, rows);
 
-        Table resultTable = converter.convert("src/test/resources/table.csv");
+        Table resultTable = converter.convert("table.csv");
 
         assertEquals(expectedTable.getColumnNames(), resultTable.getColumnNames());
         assertEquals(expectedTable.toString(), resultTable.toString());
@@ -58,11 +58,11 @@ public class ConverterTest {
 
     @Test
     public void testConverter_withEmptyFile() {
-        assertThrows(WrongDataStructureException.class, () -> converter.convert("src/test/resources/empty_file.csv"));
+        assertThrows(WrongDataStructureException.class, () -> converter.convert("empty_file.csv"));
     }
 
     @Test
     public void testConverter_withDifferentColumnsSize() {
-        assertThrows(WrongDataStructureException.class, () -> converter.convert("src/test/resources/wrong_structure.csv"));
+        assertThrows(WrongDataStructureException.class, () -> converter.convert("wrong_structure.csv"));
     }
 }
