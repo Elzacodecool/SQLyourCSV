@@ -27,6 +27,18 @@ public class SelectServiceTest {
         assertEquals(expected, service.executeQuery(query).toString());
     }
 
+    @Test
+    public void testExecuteQuery_columnNames() {
+        String query = "select id, first_name from table.csv;";
+
+        String expected = "        id | first_name\n" +
+                          "         1 |        ala\n" +
+                          "         2 |      tomek\n" +
+                          "         3 |     marian";
+
+        assertEquals(expected, service.executeQuery(query).toString());
+    }
+
    @Test
     public void testExecuteQuery_join() {
         String query = "select * from table.csv " +
