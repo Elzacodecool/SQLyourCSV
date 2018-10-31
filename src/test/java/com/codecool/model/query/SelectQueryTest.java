@@ -321,7 +321,6 @@ class SelectQueryTest {
     @Test
     public void testCorrectQueries() {
         for(int i=0; i<correctQueries.length; i++) {
-            System.out.println(i);
             assertTrue(new SelectQuery(correctQueries[i]).isValidate());
         }
     }
@@ -329,7 +328,6 @@ class SelectQueryTest {
     @Test
     public void testIncorrectQueries() {
         for(int i=0; i<incorrectQueries.length; i++) {
-            System.out.println(i);
             assertFalse(new SelectQuery(incorrectQueries[i]).isValidate());
         }
     }
