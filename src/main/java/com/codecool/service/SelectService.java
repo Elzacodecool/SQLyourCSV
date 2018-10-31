@@ -32,6 +32,9 @@ public class SelectService {
 
     public Table executeQuery(String query) {
         SelectQuery selectQuery = new SelectQuery(query);
+        if(!selectQuery.isValidate()) {
+            throw new WrongQueryFormatException("wrong Query format");
+        }
         Table joinedTable = joinTables(selectQuery.getFileNames(), selectQuery.getJoinConditions());
         Table tableAfterWhere = executeWhereCondition(joinedTable, selectQuery.getWhereCondition());
         if (selectQuery.getGroupByColumn() == null) {
