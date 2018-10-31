@@ -287,16 +287,6 @@ class SelectQueryTest {
     }
 
     @Test
-    public void testGetAllColumns() {
-        String query = "select max(id), id, name, min(count), age from table";
-        selectQuery = new SelectQuery(query);
-
-        Set<String> expectedColumns = new HashSet<>(Arrays.asList("id", "name",  "age", "count"));
-
-        assertEquals(expectedColumns, selectQuery.getAllColumns());
-    }
-
-    @Test
     public void testCorrectQueries() {
         Arrays.stream(correctQueries)
                 .map(correctQuery -> new SelectQuery(correctQuery).isValidate())
