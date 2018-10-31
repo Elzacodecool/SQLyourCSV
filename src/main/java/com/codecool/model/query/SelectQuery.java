@@ -271,6 +271,7 @@ public class SelectQuery {
         List<String> functionColumns = getFunctions().values()
                                                      .stream()
                                                      .flatMap(List::stream)
+                                                     .map(f -> f.split("[()]")[1])
                                                      .collect(Collectors.toList());
         return Stream.concat(getColumnNames().stream(), functionColumns.stream())
                      .collect(Collectors.toSet());
