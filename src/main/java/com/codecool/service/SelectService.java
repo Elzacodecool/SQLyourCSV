@@ -68,8 +68,8 @@ public class SelectService {
     }
 
     private Table getTableWithColumns(Table table, Map<SQLAggregateFunctions, List<String>> functions) {
-        List<String> columnNames = getColumnNamesFunctions(functions);
         Row row = getRowWithFunctions(table.getRows(), functions);
+        List<String> columnNames = new ArrayList<>(row.getData().keySet());
 
         return new Table(columnNames, Collections.singletonList(row));
     }
