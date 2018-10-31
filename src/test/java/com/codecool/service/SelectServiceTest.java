@@ -224,6 +224,14 @@ public class SelectServiceTest {
         assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
     }
 
+    @Test
+    public void test() {
+        String query = "select sum(age), avg(age), min(age), max(age), sum(id), min(id), max(id) from table.csv where age > 20";
+        String query2 = "select * from table.csv";
+        String query3 = "select sum(age) from table.csv where age > 0";
+
+        System.out.println(service.executeQuery(query3));
+    }
 
 
 }

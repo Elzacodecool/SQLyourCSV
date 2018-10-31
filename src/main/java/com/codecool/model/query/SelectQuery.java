@@ -18,32 +18,77 @@ public class SelectQuery {
     private Map<SQLAggregateFunctions, List<String>> functions;
     private List<List<String>> joinConditions;
     private String groupByColumn;
+    private boolean isValidate;
 
 
     public SelectQuery(String query) {
 
         super();
+        this.isValidate = validateQuery(query);
 
-        this.query = query.toLowerCase().replace(";", "");
-        functions = getFunctions(this.query);
-        columnNames = getColumnNames(this.query);
-        fileNames = getFilenames(this.query);
-        groupByColumn = getGroupBy(this.query);
-        whereCondition = getPredicate(this.query);
-        joinConditions = getJoinConditions(this.query);
+        if(isValidate) {
+            this.query = query.toLowerCase().replace(";", "");
+            functions = getFunctions(this.query);
+            columnNames = getColumnNames(this.query);
+            fileNames = getFilenames(this.query);
+            groupByColumn = getGroupBy(this.query);
+            whereCondition = getPredicate(this.query);
+            joinConditions = getJoinConditions(this.query);
+        }
 
 
+
+    }
+
+    private boolean validateQuery(String query) { {
+        List<String> queryList = mapQueryToList(query.toLowerCase());
+        int index = queryList.indexOf("where");
+        List<String> queryListBeforeWHERE;
+        List<String> queryListAfterWHERE;
+
+        if(index != -1) {
+            queryListBeforeWHERE = queryList.subList(0, index);
+            queryListAfterWHERE = queryList.subList(index+1, queryList.size());
+        } else {
+            queryListBeforeWHERE = queryList;
+        }
+
+        boolean isValidated = true;
+
+        if(queryList.lastIndexOf("select") != 0) {
+            isValidated = false;
+        } else if (!queryListBeforeWHERE.contains("from")) {
+            isValidated = false;
+        } else if(queryList.contains("join") && queryList.lastIndexOf("from") > queryList.lastIndexOf("join")) {
+            isValidated = false;
+        } else if(Collections.frequency(queryListBeforeWHERE, "from") > 1 ||
+                  Collections.frequency(queryListBeforeWHERE, "select") > 1 ||
+                  Collections.frequency(queryListBeforeWHERE, "where") > 0) {
+            isValidated = false;
+        } else if(Collections.frequency(queryListBeforeWHERE, "join") !=
+                  Collections.frequency(queryListBeforeWHERE, "on")) {
+            isValidated = false;
+        } else if (queryList.indexOf("from") - queryList.indexOf("select") == 1) {
+            isValidated = false;
+        } else if (queryListBeforeWHERE.stream()
+                                       .reduce((x, y) -> x.toString() + y.toString())
+                                       .orElse(null).contains("joinon")) {
+            isValidated = false;
+        } else if(queryListBeforeWHERE.contains("join") && queryListBeforeWHERE.indexOf("join") - queryListBeforeWHERE.indexOf("from") != 2) {
+            isValidated = false;
+        } else if(queryListBeforeWHERE.contains("and") || queryListBeforeWHERE.contains("or")) {
+            isValidated = false;
+        }
+        return isValidated;
+
+
+    }
 
     }
 
     private List<String> getFilenames(String query) {
         List<String> words = Arrays.asList(query.split(" "));
         int indexFrom = words.indexOf("from");
-        if (indexFrom < 0) {
-            throw new WrongQueryFormatException("Missing FROM statement");
-        } else if (indexFrom >= words.size() - 1) {
-            throw new WrongQueryFormatException("Missing filename");
-        }
 
         String fileName = words.get(indexFrom + 1);
 
@@ -74,7 +119,6 @@ public class SelectQuery {
                      .collect(Collectors.toMap
                             (f -> f, f -> columns.stream()
                                                  .filter(c -> c.contains(f.getName()))
-                                                 .map(c -> c.split("[()]")[1])
                                                  .collect(Collectors.toList()))
                             );
     }
@@ -91,7 +135,8 @@ public class SelectQuery {
     }
 
     private List<String> getListColumns(String query) {
-        return Arrays.stream(query.split(" "))
+        String columnsPart = query.substring(query.indexOf("select"), query.indexOf("from"));
+        return Arrays.stream(columnsPart.split(" "))
                 .filter(word -> query.indexOf(word) > query.indexOf("select"))
                 .filter(word -> query.indexOf(word) < query.indexOf("from"))
                 .map(word -> word.replace(",", ""))
@@ -114,8 +159,6 @@ public class SelectQuery {
         int indexFrom = words.indexOf("group");
         if (indexFrom < 0) {
             return null;
-        } else if (indexFrom >= words.size() - 2) {
-            throw new WrongQueryFormatException("Missing columnName");
         }
 
         return words.get(indexFrom + 2);
@@ -185,20 +228,17 @@ public class SelectQuery {
 
     private List<List<String>> buildJoinCondition(List<String> condition) {
 
-        if(condition.get(1).equals("=")) {
-            int index = condition.indexOf("on");
-            String[] columnSet = {condition.get(0), condition.get(2)};
-            if(index < 0) {
-                return Arrays.asList(Arrays.asList(columnSet));
-            } else {
-                return Stream.concat(Arrays.asList(Arrays.asList(columnSet)).stream(),
-                        buildJoinCondition(condition.subList(index+1, condition.size())).stream())
-                        .collect(Collectors.toList());
-            }
-
+        int index = condition.indexOf("on");
+        String[] columnSet = {condition.get(0), condition.get(2)};
+        if(index < 0) {
+            return Arrays.asList(Arrays.asList(columnSet));
+        } else {
+            return Stream.concat(Arrays.asList(Arrays.asList(columnSet)).stream(),
+                    buildJoinCondition(condition.subList(index+1, condition.size())).stream())
+                    .collect(Collectors.toList());
         }
 
-        throw new WrongQueryFormatException("wrong ON condition");
+
 
     }
 
@@ -234,5 +274,9 @@ public class SelectQuery {
                                                      .collect(Collectors.toList());
         return Stream.concat(getColumnNames().stream(), functionColumns.stream())
                      .collect(Collectors.toSet());
+    }
+
+    public boolean isValidate() {
+        return isValidate;
     }
 }
