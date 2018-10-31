@@ -54,6 +54,25 @@ public class SelectService {
         }
     }
 
+    private Table getTableWithColumns(Table table,
+                                      List<String> columnNames) {
+
+        List<Row> rows = table.getRows().stream()
+                .map(row -> getUpdatedRowWithColumns(row, columnNames))
+                .collect(Collectors.toList());
+
+        return new Table(columnNames, rows);
+    }
+
+    private Table getTableWithColumns(Table table, Map<SQLAggregateFunctions, List<String>> functions) {
+        List<String> columnNames = getColumnNamesFunctions(functions);
+        Row row = getRowWithFunctions(table.getRows(), functions);
+
+        return new Table(columnNames, Collections.singletonList(row));
+    }
+
+
+
     private Table getTableWithColumns(List<Table> table,
                                       List<String> columnNames,
                                       Map<SQLAggregateFunctions, List<String>> functions) {
