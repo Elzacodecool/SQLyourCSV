@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -56,7 +57,18 @@ public class SelectService {
     }
 
     private List<Table> groupBy(Table table, String groupByColumn) {
-        return null;
+        Set<Object> valuesFromColumn = table.getRows().stream()
+                .map(row -> row.getData().get(groupByColumn))
+                .collect(Collectors.toSet());
+
+        return valuesFromColumn.stream()
+                .map(value ->
+                        table.getRows().stream()
+                            .filter(row -> row.getData().get(groupByColumn).equals(value))
+                            .collect(Collectors.toList())
+                        )
+                .map(rows -> new Table(table.getColumnNames(), rows))
+                .collect(Collectors.toList());
     }
 
     private Table executeWhereCondition(Table table, Predicate<Row> whereCondition) {
