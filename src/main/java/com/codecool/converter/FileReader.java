@@ -1,6 +1,7 @@
 package com.codecool.converter;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -11,13 +12,17 @@ import java.util.List;
 @Component
 public class FileReader {
 
+    @Value("${resourcepath}")
+    private String path;
+
     @Autowired
     public FileReader() {}
 
     List<String[]> readData(String file) {
+        System.out.println(path);
         List<String[]> data = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new java.io.FileReader(file))) {
+        try (BufferedReader br = new BufferedReader(new java.io.FileReader(path + file))) {
             String line;
             while ((line = br.readLine()) != null) {
                 data.add(line.split(","));
