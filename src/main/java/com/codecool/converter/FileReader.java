@@ -19,7 +19,6 @@ public class FileReader {
     public FileReader() {}
 
     List<String[]> readData(String file) {
-        System.out.println(path);
         List<String[]> data = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new java.io.FileReader(path + file))) {
