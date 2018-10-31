@@ -33,16 +33,15 @@ public class SelectService {
         SelectQuery selectQuery = new SelectQuery(query);
         Table table = joinTables(selectQuery.getFileNames(), selectQuery.getJoinConditions());
 
-
-
-        return null;
-
+        System.out.println(table.toString());
+        return table;
     }
+
 
     private Table joinTables(List<String> fileNames, List<List<String>> conditions) {
         Table firstTable = converter.convert(fileNames.get(0));
         List<Table> joinTables = fileNames.stream()
-                    .limit(1)
+                    .skip(1)
                     .map(filename -> converter.convert(filename))
                     .collect(Collectors.toList());
         Map<Table, List<String>> joinTableWithCondition = IntStream.range(0, fileNames.size() - 1)
@@ -56,22 +55,32 @@ public class SelectService {
                 .reduce(firstTable, (joinedTable, table) -> joinTables(joinedTable, table, joinTableWithCondition.get(table)));
     }
 
+
     private Table joinTables(Table table1, Table table2, List<String> condition) {
-        return null;
+
+        List<String> columns = Stream.concat(table2.getColumnNames().stream(), table1.getColumnNames().stream())
+                                     .collect(Collectors.toList());
+
+        String firstColumn = condition.get(0);
+        String secondColumn = condition.get(1);
+
+        List<Row> rows = table1.getRows().stream()
+                .map(row -> mergeRows(row,
+                        table2.getRows().stream()
+                                .filter(row2 -> row.getData().get(firstColumn).toString().equals(row2.getData().get(secondColumn).toString()))
+                                .findFirst().orElse(null)
+                ))
+                .collect(Collectors.toList());
+
+        return new Table(columns, rows);
     }
 
-//    private Table joinTables(Table table1, Table table2, List<String> condition) {
-//
-//        List<String> columns = Stream.concat(table1.getColumnNames().stream(), table2.getColumnNames().stream())
-//                                     .collect(Collectors.toList());
-//
-//        table1.getRows().stream().
-//    }
+    Row mergeRows(Row row1, Row row2) {
+        Map<String, Object> rowData = Stream.of(row2.getData(), row1.getData()).flatMap(m -> m.entrySet().stream())
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-//    Row getIncreasedRowWithColumns(Row row1, Row row2, List<String> columns) {
-//        Map<String, Object> rotData = row1.getData().merge(row2.getData());
-//        return new Row(columns.stream().collect(Collectors.toMap(column -> column, column->)))
-//    }
+        return new Row(rowData);
+    }
 
 
     Row getUpdatedRowWithColumns(Row row, List<String> columns) {
