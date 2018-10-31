@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Service
-public class SelectService {
+public class SelectService extends QueryService {
     private Converter converter;
 
     @Autowired
@@ -30,6 +30,7 @@ public class SelectService {
     public SelectService() {
     }
 
+    @Override
     public Table executeQuery(String query) {
         SelectQuery selectQuery = new SelectQuery(query);
         if(!selectQuery.isValidate()) {

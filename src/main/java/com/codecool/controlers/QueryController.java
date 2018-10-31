@@ -2,6 +2,7 @@ package com.codecool.controlers;
 
 import com.codecool.converter.Converter;
 import com.codecool.model.QueryInterpreter;
+import com.codecool.service.QueryServiceFactory;
 import com.codecool.service.SelectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,7 @@ import org.springframework.ui.Model;
 public class QueryController {
 
     @Autowired
-    SelectService service;
+    private QueryServiceFactory queryServiceFactory;
 
     @GetMapping()
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -26,10 +27,9 @@ public class QueryController {
     @PostMapping()
     @ResponseStatus(HttpStatus.ACCEPTED)
     public String displayResult(@ModelAttribute("query") QueryInterpreter query, Model model ) {
-        model.addAttribute("queryTable", this.service.executeQuery(query.getQuery()));
+        String queryString = query.getQuery();
+        model.addAttribute("queryTable", queryServiceFactory.getQueryService(queryString).executeQuery(queryString));
         return "response";
-
-
     }
 
 }
