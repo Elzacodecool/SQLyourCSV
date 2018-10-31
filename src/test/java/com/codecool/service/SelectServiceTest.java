@@ -10,6 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -89,7 +91,7 @@ public class SelectServiceTest {
     }
 
     @Test
-    public void testExecuteQuery_withoutCondition() {
+    public void testExecuteQuery_withoutCondition() throws IOException, GeneralSecurityException {
         String query = "select * from table.csv;";
 
         Map<String, Object> map1 = new HashMap<>();
@@ -117,7 +119,7 @@ public class SelectServiceTest {
         assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
     }
     @Test
-    public void testExecuteQuery_withEquals() {
+    public void testExecuteQuery_withEquals() throws IOException, GeneralSecurityException {
         String query = "select * from table.csv where age=20;";
 
         Map<String, Object> map1 = new HashMap<>();
@@ -134,7 +136,7 @@ public class SelectServiceTest {
     }
 
     @Test
-    public void testExecuteQuery_withGreater() {
+    public void testExecuteQuery_withGreater() throws IOException, GeneralSecurityException {
         String query = "select * from table.csv where age > 30;";
 
         Map<String, Object> map3 = new HashMap<>();
@@ -151,7 +153,7 @@ public class SelectServiceTest {
     }
 
     @Test
-    public void testExecuteQuery_withSmaller() {
+    public void testExecuteQuery_withSmaller() throws IOException, GeneralSecurityException {
         String query = "select * from table.csv where age < 30;";
 
         Map<String, Object> map1 = new HashMap<>();
@@ -168,7 +170,7 @@ public class SelectServiceTest {
     }
 
         @Test
-    public void testExecuteQuery_withNotEquals() {
+    public void testExecuteQuery_withNotEquals() throws IOException, GeneralSecurityException {
         String query = "select * from table.csv where age <> 20;";
 
         Map<String, Object> map2 = new HashMap<>();
@@ -191,7 +193,7 @@ public class SelectServiceTest {
     }
 
     @Test
-    public void testExecuteQuery_withLike() {
+    public void testExecuteQuery_withLike() throws IOException, GeneralSecurityException {
         String query = "select * from table.csv where first_name like 'ala';";
 
         Map<String, Object> map1 = new HashMap<>();
@@ -209,7 +211,7 @@ public class SelectServiceTest {
     }
 
     @Test
-    public void testExecuteQuery_withFewConditions() {
+    public void testExecuteQuery_withFewConditions() throws IOException, GeneralSecurityException {
         String query = "select * from table.csv where id = 1 or first_name like 'marian' and age > 20";
 
 
@@ -228,7 +230,7 @@ public class SelectServiceTest {
     }
 
     @Test
-    public void testExecuteQuery_withFewConditions2() {
+    public void testExecuteQuery_withFewConditions2() throws IOException, GeneralSecurityException {
         String query = "select * from table.csv where id = 1 and first_name like 'marian' or age > 20";
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 2);

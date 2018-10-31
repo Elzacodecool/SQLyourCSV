@@ -7,6 +7,8 @@ import com.codecool.model.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
@@ -22,7 +24,7 @@ public class SelectService extends QueryService {
     }
 
     @Override
-    public Table executeQuery(String query) {
+    public Table executeQuery(String query) throws IOException, GeneralSecurityException {
         String customizedQuery = query.toLowerCase().replace(";", "");
         String filename = getFilename(query.replace(";", ""));
         Table table = converter.convert(filename);

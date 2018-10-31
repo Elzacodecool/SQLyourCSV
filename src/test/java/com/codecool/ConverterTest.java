@@ -11,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +29,7 @@ public class ConverterTest {
     private Converter converter;
 
     @Test
-    public void testConvertCsvToTable() {
+    public void testConvertCsvToTable() throws IOException, GeneralSecurityException {
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 1);
         map1.put("first_name", "ala");

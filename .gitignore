@@ -26,4 +26,4 @@ hs_err_pid*
 
 target/
 .DS_Store
-credentials-2.json
+credentials.json

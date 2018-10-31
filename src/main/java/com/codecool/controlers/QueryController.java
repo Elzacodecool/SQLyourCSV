@@ -9,6 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 @Controller
 @RequestMapping("/query")
 public class QueryController {
@@ -26,7 +29,13 @@ public class QueryController {
     @PostMapping()
     @ResponseStatus(HttpStatus.ACCEPTED)
     public String displayResult(@ModelAttribute("query") QueryInterpreter query, Model model ) {
-        model.addAttribute("queryTable", this.service.executeQuery(query.getQuery()));
+        try {
+            model.addAttribute("queryTable", this.service.executeQuery(query.getQuery()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
         return "response";
 
 

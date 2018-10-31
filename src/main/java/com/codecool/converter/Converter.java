@@ -6,22 +6,23 @@ import com.codecool.model.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Component
 public class Converter {
-    private FileReader fileReader;
 
     @Autowired
-    public Converter(FileReader fileReader) {
-        this.fileReader = fileReader;
+    public Converter() {
     }
 
 
-    public Table convert(String filepath) {
-        List<String[]> data = fileReader.readData(filepath);
+    public Table convert(String filepath) throws IOException, GeneralSecurityException {
+        List<String[]> data = FileReader.readData(filepath);
         if (!checkIfDataIsCorrect(data)) {
             throw new WrongDataStructureException("Wrong data structure");
         }
