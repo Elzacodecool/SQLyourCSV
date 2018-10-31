@@ -179,7 +179,4 @@ public class SelectService {
     private boolean checkIfColumnsExistInTable(List<String> columns, Table table) {
         return table.getColumnNames().containsAll(columns);
     }
-
-
-
 }
