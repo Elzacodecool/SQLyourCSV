@@ -161,22 +161,27 @@ public class SelectService {
         );
     }
 
-//    List<String> getValidatedListColumns(SelectQuery selectQuery, Table table) {
-//        List<String> columns = selectQuery.getAllColumns();
-//
+    private Row getRowWithFunctions(List<Row> rows, Map<SQLAggregateFunctions, List<String>> functions) {
+        Function<String, List<Integer>> valuesFromColumn = columnName -> rows.stream()
+                .map(row -> row.getData().get(columnName).toString())
+                .map(Integer::valueOf)
+                .collect(Collectors.toList());
 
-//        if (columns.contains("*")) {
-//            return table.getColumnNames();
-//        }
-//
-//        if (checkIfColumnsExistInTable(columns, table)) {
-//            return columns;
-//        }
-//
-//        throw new WrongQueryFormatException("No column in table");
-//    }
+        BiFunction<SQLAggregateFunctions, String, Double> calculateFunction = (function, name) ->
+                function.calculate(valuesFromColumn.apply(name.split("[()]")[1]));
 
-    private boolean checkIfColumnsExistInTable(List<String> columns, Table table) {
-        return table.getColumnNames().containsAll(columns);
+        Stream<Map<String, Object>> mapStream = functions.keySet().stream()
+                                    .map(function ->
+                                            functions.get(function).stream()
+                                            .collect(Collectors.toMap(
+                                                  name -> name,
+                                                  name -> (Object) calculateFunction.apply(function, name)
+                                            ))
+                                    );
+
+        Map<String, Object> map = mapStream.flatMap(m -> m.entrySet().stream())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return new Row(map);
     }
 }
