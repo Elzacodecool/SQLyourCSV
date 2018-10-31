@@ -4,6 +4,7 @@ import com.codecool.converter.Converter;
 import com.codecool.exception.WrongQueryFormatException;
 import com.codecool.model.Row;
 import com.codecool.model.Table;
+import com.codecool.model.query.SQLAggregateFunctions;
 import com.codecool.model.query.SelectQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,12 +32,38 @@ public class SelectService {
 
     public Table executeQuery(String query) {
         SelectQuery selectQuery = new SelectQuery(query);
-        Table table = joinTables(selectQuery.getFileNames(), selectQuery.getJoinConditions());
-
-        System.out.println(table.toString());
-        return table;
+        Table joinedTable = joinTables(selectQuery.getFileNames(), selectQuery.getJoinConditions());
+        Table tableAfterWhere = executeWhereCondition(joinedTable, selectQuery.getWhereCondition());
+        if (selectQuery.getGroupByColumn() == null) {
+            return getTableWithColumns(tableAfterWhere,
+                    selectQuery.getColumnNames(), selectQuery.getFunctions());
+        } else {
+            return getTableWithColumns(groupBy(tableAfterWhere, selectQuery.getGroupByColumn()),
+                    selectQuery.getColumnNames(), selectQuery.getFunctions());
+        }
     }
 
+    private Table getTableWithColumns(Table table,
+                                      List<String> columnNames,
+                                      Map<SQLAggregateFunctions, List<String>> functions) {
+        return null;
+    }
+
+    private Table getTableWithColumns(List<Table> table,
+                                      List<String> columnNames,
+                                      Map<SQLAggregateFunctions, List<String>> functions) {
+        return null;
+    }
+
+    private List<Table> groupBy(Table table, String groupByColumn) {
+        return null;
+    }
+
+    private Table executeWhereCondition(Table table, Predicate<Row> whereCondition) {
+        return new Table(table.getColumnNames(), table.getRows().stream()
+                                                                .filter(whereCondition)
+                                                                .collect(Collectors.toList()));
+    }
 
     private Table joinTables(List<String> fileNames, List<List<String>> conditions) {
         Table firstTable = converter.convert(fileNames.get(0));
@@ -54,7 +81,6 @@ public class SelectService {
         return joinTables.stream()
                 .reduce(firstTable, (joinedTable, table) -> joinTables(joinedTable, table, joinTableWithCondition.get(table)));
     }
-
 
     private Table joinTables(Table table1, Table table2, List<String> condition) {
 
