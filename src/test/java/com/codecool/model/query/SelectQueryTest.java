@@ -2,6 +2,7 @@ package com.codecool.model.query;
 
 import com.codecool.exception.WrongQueryFormatException;
 import com.codecool.model.Row;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,16 +43,7 @@ class SelectQueryTest {
 
         assertEquals("table", selectQuery.getFileNames().get(0));
     }
-    @Test
-    public void testFilenameByQuery_withoutFromStatement() {
-        String query = "select * table";
-        assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
-    }
-    @Test
-    public void testFilename_withoutFileName() {
-        String query = "select * from";
-        assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
-    }
+
     @Test
     public void testFileNames_withJoins() {
         String query = "select * from table join table2 on id=id2 join table3 on id=id2";
@@ -75,8 +67,8 @@ class SelectQueryTest {
         String query = "select max(id), id, name, min(count), min(age), age from table";
         selectQuery = new SelectQuery(query);
 
-        assertEquals(Collections.singletonList("id"), selectQuery.getFunctions().get(SQLAggregateFunctions.MAX));
-        assertEquals(Arrays.asList("count", "age"), selectQuery.getFunctions().get(SQLAggregateFunctions.MIN));
+        assertEquals(Collections.singletonList("max(id)"), selectQuery.getFunctions().get(SQLAggregateFunctions.MAX));
+        assertEquals(Arrays.asList("min(count)", "min(age)"), selectQuery.getFunctions().get(SQLAggregateFunctions.MIN));
     }
 
     @Test
@@ -279,13 +271,6 @@ class SelectQueryTest {
         assertNull(selectQuery.getJoinConditions());
     }
 
-    @Test
-    public void testJoinCondition_wrongFormat() {
-        String query = "select * from table join table2 on id != id2;";
-
-        assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
-    }
-
 
     @Test
     public void testGroupBy() {
@@ -301,12 +286,6 @@ class SelectQueryTest {
 
         assertNull(selectQuery.getGroupByColumn());
     }
-    @Test
-    public void testGroupBy_missingColumnName() {
-        String query = "select * from table group by;";
-
-        assertThrows(WrongQueryFormatException.class, () -> new SelectQuery(query));
-    }
 
     @Test
     public void testGetAllColumns() {
@@ -320,16 +299,16 @@ class SelectQueryTest {
 
     @Test
     public void testCorrectQueries() {
-        for(int i=0; i<correctQueries.length; i++) {
-            assertTrue(new SelectQuery(correctQueries[i]).isValidate());
-        }
+        Arrays.stream(correctQueries)
+                .map(correctQuery -> new SelectQuery(correctQuery).isValidate())
+                .forEach(Assertions::assertTrue);
     }
 
     @Test
     public void testIncorrectQueries() {
-        for(int i=0; i<incorrectQueries.length; i++) {
-            assertFalse(new SelectQuery(incorrectQueries[i]).isValidate());
-        }
+        Arrays.stream(incorrectQueries)
+                .map(incorrectQuery -> new SelectQuery(incorrectQuery).isValidate())
+                .forEach(Assertions::assertFalse);
     }
 
 
