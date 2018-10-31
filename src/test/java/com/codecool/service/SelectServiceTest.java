@@ -83,6 +83,15 @@ public class SelectServiceTest {
         assertEquals(expected, service.executeQuery(query).toString());
     }
 
+    @Test
+    public void testExecuteQuery_groupBy_onlyFunctions() {
+        String query = "select avg(age) from groupbytable.csv group by gender;";
+        String expected = "  avg(age)\n" +
+                          "      30.0\n" +
+                          "      38.0";
+
+        assertEquals(expected, service.executeQuery(query).toString());
+    }
 
 }
 
