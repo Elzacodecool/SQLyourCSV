@@ -79,6 +79,12 @@ public class SelectService {
         return null;
     }
 
+    private List<String> getColumnNamesFunctions(Map<SQLAggregateFunctions, List<String>> functions) {
+        return functions.values().stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
     private List<Table> groupBy(Table table, String groupByColumn) {
         Set<Object> valuesFromColumn = table.getRows().stream()
                 .map(row -> row.getData().get(groupByColumn))
