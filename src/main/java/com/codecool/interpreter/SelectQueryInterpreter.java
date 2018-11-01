@@ -90,13 +90,19 @@ public class SelectQueryInterpreter {
         return words.get(indexFrom + 2);
     }
 
+    public Predicate<Row> getWherePredicate(String query) {
+        return getPredicate(query, "where");
+    }
 
+    public Predicate<Row> getHavingPredicate(String query) {
+        return getPredicate(query, "having");
+    }
 
-    public Predicate<Row> getPredicate(String query) {
-        if (query.contains("where")) {
+    private Predicate<Row> getPredicate(String query, String conditionWord) {
+        if (query.contains(conditionWord)) {
             List<String> queryList = mapQueryToList(query);
             List<String> condition = queryList.stream()
-                    .skip(queryList.indexOf("where") + 1)
+                    .skip(queryList.indexOf(conditionWord) + 1)
                     .collect(Collectors.toList());
             return buildPredicate(condition);
         }
@@ -116,10 +122,10 @@ public class SelectQueryInterpreter {
                 predicate = (row) -> row.getData().get(columnName).toString().equals(value);
                 break;
             case ">":
-                predicate = (row) -> Integer.valueOf(row.getData().get(columnName).toString()) > Integer.valueOf(value);
+                predicate = (row) -> Float.valueOf(row.getData().get(columnName).toString()) > Float.valueOf(value);
                 break;
             case "<":
-                predicate = (row) -> Integer.valueOf(row.getData().get(columnName).toString()) < Integer.valueOf(value);
+                predicate = (row) -> Float.valueOf(row.getData().get(columnName).toString()) < Float.valueOf(value);
                 break;
             case "<>":
                 predicate = (row) -> !row.getData().get(columnName).toString().equals(value);

@@ -37,13 +37,18 @@ public class SelectService extends QueryService {
             throw new WrongQueryFormatException("wrong Query format");
         }
         Table joinedTable = joinTables(selectQuery.getFileNames(), selectQuery.getJoinConditions());
-        Table tableAfterWhere = executeWhereCondition(joinedTable, selectQuery.getWhereCondition());
+        Table tableAfterWhere = executeCondition(joinedTable, selectQuery.getWhereCondition());
         if (selectQuery.getGroupByColumn() == null) {
             return getTableWithColumns(tableAfterWhere,
                     selectQuery.getColumnNames(), selectQuery.getFunctions());
         } else {
-            return getTableWithColumns(groupBy(tableAfterWhere, selectQuery.getGroupByColumn()),
-                    selectQuery.getColumnNames(), selectQuery.getFunctions());
+            return executeCondition(
+                    getTableWithColumns(
+                            groupBy(tableAfterWhere, selectQuery.getGroupByColumn()),
+                            selectQuery.getColumnNames(), selectQuery.getFunctions()
+                    ),
+                    selectQuery.getHavingCondition()
+            );
         }
     }
 
@@ -72,7 +77,12 @@ public class SelectService extends QueryService {
     private List<String> addColumnsIfNeeded(List<String> columns, List<String> columnsToAdd) {
         if (columns.contains("*")) {
             int index = columns.indexOf("*");
-            return concatListsString(concatListsString(columns.subList(0, index), columnsToAdd), columns.subList(index + 1, columns.size()));
+            return concatListsString(
+                    concatListsString(
+                            columns.subList(0, index),
+                            columnsToAdd),
+                    columns.subList(index + 1, columns.size())
+            );
         }
         return columns;
     }
@@ -151,9 +161,9 @@ public class SelectService extends QueryService {
                 .collect(Collectors.toList());
     }
 
-    private Table executeWhereCondition(Table table, Predicate<Row> whereCondition) {
+    private Table executeCondition(Table table, Predicate<Row> condition) {
         return new Table(table.getColumnNames(), table.getRows().stream()
-                                                                .filter(whereCondition)
+                                                                .filter(condition)
                                                                 .collect(Collectors.toList()));
     }
 

@@ -20,6 +20,7 @@ public class SelectQuery {
     private Map<SQLAggregateFunctions, List<String>> functions;
     private List<List<String>> joinConditions;
     private String groupByColumn;
+    private Predicate<Row> havingCondition;
     private boolean isValidate;
 
 
@@ -33,7 +34,8 @@ public class SelectQuery {
             columnNames = interpreter.getColumnNames(this.query);
             fileNames = interpreter.getFilenames(this.query);
             groupByColumn = interpreter.getGroupBy(this.query);
-            whereCondition = interpreter.getPredicate(this.query);
+            whereCondition = interpreter.getWherePredicate(this.query);
+            havingCondition = interpreter.getHavingPredicate(query);
             joinConditions = interpreter.getJoinConditions(this.query);
         }
     }
@@ -61,6 +63,10 @@ public class SelectQuery {
 
     public String getGroupByColumn() {
         return groupByColumn;
+    }
+
+    public Predicate<Row> getHavingCondition() {
+        return havingCondition;
     }
 
     public boolean isValidate() {
