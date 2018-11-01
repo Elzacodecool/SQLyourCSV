@@ -1,6 +1,5 @@
 package com.codecool.model.query;
 
-import com.codecool.exception.WrongQueryFormatException;
 import com.codecool.model.Row;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -186,7 +185,7 @@ class SelectQueryTest {
 
     @Test
     public void testWhereConditionPredicate_withLikeOperator() {
-        String query = "select * from table.csv where first_name like 'ala';";
+        String query = "select * from table.csv where first_name like '?l%';";
         selectQuery = new SelectQuery(query);
 
         Map<String, Object> map1 = new HashMap<>();

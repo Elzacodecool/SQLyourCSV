@@ -108,7 +108,7 @@ public class SelectQueryInterpreter {
         Predicate<Row> predicate;
         String columnName = condition.get(condition.size()-3);
         String operator = condition.get(condition.size()-2);
-        String value = condition.get(condition.size()-1);
+        String value = condition.get(condition.size()-1).replace("\'", "");
 
 
         switch (operator) {
@@ -126,7 +126,7 @@ public class SelectQueryInterpreter {
                 break;
             case "like":
                 predicate = (row) -> row.getData().get(columnName) instanceof String &&
-                        row.getData().get(columnName).equals(value.replace("\'", ""));
+                        like(row.getData().get(columnName).toString(), value);
                 break;
             default:
                 return (row) -> false;
@@ -138,6 +138,13 @@ public class SelectQueryInterpreter {
             return predicate.and(buildPredicate(condition.subList(0, condition.size()-4)));
         }
         return predicate;
+    }
+
+    private boolean like(String string, String value) {
+        String expression = value.replace(".", "\\.")
+                .replace("?", ".")
+                .replace("%", ".*");
+        return string.matches(expression);
     }
 
     public List<List<String>> getJoinConditions(String query) {
