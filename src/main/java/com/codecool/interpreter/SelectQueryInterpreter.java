@@ -142,7 +142,7 @@ public class SelectQueryInterpreter {
 
     private boolean like(String string, String value) {
         String expression = value.replace(".", "\\.")
-                .replace("?", ".")
+                .replace("_", ".")
                 .replace("%", ".*");
         return string.matches(expression);
     }

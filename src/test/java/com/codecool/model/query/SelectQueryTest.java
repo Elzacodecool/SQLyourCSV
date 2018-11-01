@@ -185,7 +185,7 @@ class SelectQueryTest {
 
     @Test
     public void testWhereConditionPredicate_withLikeOperator() {
-        String query = "select * from table.csv where first_name like '?l%';";
+        String query = "select * from table.csv where first_name like '_l%';";
         selectQuery = new SelectQuery(query);
 
         Map<String, Object> map1 = new HashMap<>();
