@@ -1,18 +1,11 @@
 package com.codecool.service;
 
 import com.codecool.exception.WrongQueryFormatException;
-import com.codecool.model.Row;
-import com.codecool.model.Table;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,231 +18,123 @@ public class SelectServiceTest {
     SelectService service;
 
     @Test
-    public void testGetFilenameByQuery() {
-        String query = "select * from abc.csv";
-        assertEquals("abc.csv", service.getFilename(query));
-    }
-    @Test
-    public void testGetFilenameByQuery_withoutFrom() {
-        String query = "select * abc.csv";
-        assertThrows(WrongQueryFormatException.class, () -> service.getFilename(query));
-    }
-    @Test
-    public void testGetFilenameByQuery_withoutFilename() {
-        String query = "select * from";
-        assertThrows(WrongQueryFormatException.class, () -> service.getFilename(query));
+    public void testExecuteQuery_allColumns() {
+        String query = "select * from table.csv";
+
+        String expected = "        id | first_name |        age\n" +
+                          "         1 |        ala |         20\n" +
+                          "         2 |      tomek |         30\n" +
+                          "         3 |     marian |         90";
+
+        assertEquals(expected, service.executeQuery(query).toString());
     }
 
     @Test
-    public void testupdateRowWithColumns() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", 1);
-        map.put("first_name", "ala");
-        map.put("age", 20);
-        Row row = new Row(map);
+    public void testExecuteQuery_columnNames() {
+        String query = "select id, first_name from table.csv;";
 
-        List<String> columns = Arrays.asList("id", "first_name");
+        String expected = "        id | first_name\n" +
+                          "         1 |        ala\n" +
+                          "         2 |      tomek\n" +
+                          "         3 |     marian";
 
-
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("id", 1);
-        map1.put("first_name", "ala");
-        Row expectedRow = new Row(map1);
-
-        assertEquals(expectedRow.toString(), service.getUpdatedRowWithColumns(row, columns).toString());
+        assertEquals(expected, service.executeQuery(query).toString());
     }
 
     @Test
-    public void testValidatedListColumnsFromQuery() {
-        String query = "select id, name, age from abc.csv";
-        List<String> columns = Arrays.asList("id", "name", "surname", "age");
-        Table table = new Table(columns, new ArrayList<>());
+    public void testExecuteQuery_functions() {
+        String query = "select sum(age) from table.csv;";
 
-        List<String> expectedColumns = Arrays.asList("id", "name", "age");
+        String expected = "  sum(age)\n" +
+                          "     140.0";
 
-        assertEquals(expectedColumns, service.getValidatedListColumns(query, table));
+        assertEquals(expected, service.executeQuery(query).toString());
+    }
+
+   @Test
+    public void testExecuteQuery_join() {
+        String query = "select * from table.csv " +
+                                 "join jointable.csv on id=id_surname " +
+                                 "join jointable2.csv on surname = surname2";
+
+        String expected = "profession | id_surname |   surname2 |    surname |         id | first_name |        age\n" +
+                          "      cook |          1 |   surname1 |   surname1 |          1 |        ala |         20\n" +
+                          "    artist |          2 |   surname2 |   surname2 |          2 |      tomek |         30";
+
+        assertEquals(expected, service.executeQuery(query).toString());
     }
 
     @Test
-    public void testValidatedListColumnsFromQuery_allColumns() {
-        String query = "select * from abc.csv";
-        List<String> columns = Arrays.asList("id", "name", "surname", "age");
-        Table table = new Table(columns, new ArrayList<>());
+    public void testExecuteQuery_join_withoutResults() {
+        String query = "select * from table.csv " +
+                                 "join jointable.csv on id=surname";
 
-        List<String> expectedColumns = Arrays.asList("id", "name", "surname", "age");
+        String expected = "        id | first_name |        age | id_surname |    surname\n";
 
-        assertEquals(expectedColumns, service.getValidatedListColumns(query, table));
+        assertEquals(expected, service.executeQuery(query).toString());
     }
 
     @Test
-    public void testValidatedListColumnsFromQuery_wrongColumnName() {
-        String query = "select login from abc.csv";
-        List<String> columns = Arrays.asList("id", "name", "surname", "age");
-        Table table = new Table(columns, new ArrayList<>());
+    public void testExecuteQuery_where() {
+        String query = "select * from table.csv where age < 50";
 
-        assertThrows(WrongQueryFormatException.class, () -> service.getValidatedListColumns(query, table));
+        String expected = "        id | first_name |        age\n" +
+                          "         1 |        ala |         20\n" +
+                          "         2 |      tomek |         30";
+
+        assertEquals(expected, service.executeQuery(query).toString());
     }
 
     @Test
-    public void testExecuteQuery_withoutCondition() throws IOException, GeneralSecurityException {
-        String query = "select * from table.csv;";
+    public void testExecuteQuery_groupBy() {
+        String query = "select gender, avg(age) from groupbytable.csv group by gender;";
+        String expected = "    gender |   avg(age)\n" +
+                          "         f |       30.0\n" +
+                          "         m |       38.0";
 
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("id", 1);
-        map1.put("first_name", "ala");
-        map1.put("age", 20);
-        Row row1 = new Row(map1);
-
-        Map<String, Object> map2 = new HashMap<>();
-        map2.put("id", 2);
-        map2.put("first_name", "tomek");
-        map2.put("age", 30);
-        Row row2 = new Row(map2);
-
-        Map<String, Object> map3 = new HashMap<>();
-        map3.put("id", 3);
-        map3.put("first_name", "marian");
-        map3.put("age", 90);
-        Row row3 = new Row(map3);
-
-        List<String> columnNames = Arrays.asList("id", "first_name", "age");
-        List<Row> rows = Arrays.asList(row1, row2, row3);
-        Table expectedTable = new Table(columnNames, rows);
-
-        assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
+        assertEquals(expected, service.executeQuery(query).toString());
     }
     @Test
-    public void testExecuteQuery_withEquals() throws IOException, GeneralSecurityException {
-        String query = "select * from table.csv where age=20;";
+    public void testExecuteQuery_groupBy_withHaving() {
+        String query = "select gender, avg(age) from groupbytable.csv group by gender having avg(age) < 35";
+        String expected = "    gender |   avg(age)\n" +
+                          "         f |       30.0";
 
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("id", 1);
-        map1.put("first_name", "ala");
-        map1.put("age", 20);
-        Row row1 = new Row(map1);
+        assertEquals(expected, service.executeQuery(query).toString());
+    }
 
-        List<String> columnNames = Arrays.asList("id", "first_name", "age");
-        List<Row> rows = Collections.singletonList(row1);
-        Table expectedTable = new Table(columnNames, rows);
 
-        assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
+    @Test
+    public void testExecuteQuery_groupBy_emptyTable() {
+        String query = "select gender, avg(age) from groupbytable.csv where gender=x group by gender;";
+        String expected = "    gender |   avg(age)\n";
+
+        assertEquals(expected, service.executeQuery(query).toString());
     }
 
     @Test
-    public void testExecuteQuery_withGreater() throws IOException, GeneralSecurityException {
-        String query = "select * from table.csv where age > 30;";
+    public void testExecuteQuery_groupBy_onlyFunctions() {
+        String query = "select avg(age) from groupbytable.csv group by gender;";
+        String expected = "  avg(age)\n" +
+                          "      30.0\n" +
+                          "      38.0";
 
-        Map<String, Object> map3 = new HashMap<>();
-        map3.put("id", 3);
-        map3.put("first_name", "marian");
-        map3.put("age", 90);
-        Row row3 = new Row(map3);
-
-        List<String> columnNames = Arrays.asList("id", "first_name", "age");
-        List<Row> rows = Collections.singletonList(row3);
-        Table expectedTable = new Table(columnNames, rows);
-
-        assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
+        assertEquals(expected, service.executeQuery(query).toString());
     }
 
     @Test
-    public void testExecuteQuery_withSmaller() throws IOException, GeneralSecurityException {
-        String query = "select * from table.csv where age < 30;";
+    public void testExecuteQuery_groupBy_onlyFunctions_emptyTable() {
+        String query = "select avg(age) from groupbytable.csv where gender=x group by gender;";
+        String expected = "  avg(age)\n";
 
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("id", 1);
-        map1.put("first_name", "ala");
-        map1.put("age", 20);
-        Row row1 = new Row(map1);
-
-        List<String> columnNames = Arrays.asList("id", "first_name", "age");
-        List<Row> rows = Collections.singletonList(row1);
-        Table expectedTable = new Table(columnNames, rows);
-
-        assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
-    }
-
-        @Test
-    public void testExecuteQuery_withNotEquals() throws IOException, GeneralSecurityException {
-        String query = "select * from table.csv where age <> 20;";
-
-        Map<String, Object> map2 = new HashMap<>();
-        map2.put("id", 2);
-        map2.put("first_name", "tomek");
-        map2.put("age", 30);
-        Row row2 = new Row(map2);
-
-        Map<String, Object> map3 = new HashMap<>();
-        map3.put("id", 3);
-        map3.put("first_name", "marian");
-        map3.put("age", 90);
-        Row row3 = new Row(map3);
-
-        List<String> columnNames = Arrays.asList("id", "first_name", "age");
-        List<Row> rows = Arrays.asList(row2, row3);
-        Table expectedTable = new Table(columnNames, rows);
-
-        assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
+        assertEquals(expected, service.executeQuery(query).toString());
     }
 
     @Test
-    public void testExecuteQuery_withLike() throws IOException, GeneralSecurityException {
-        String query = "select * from table.csv where first_name like 'ala';";
+    public void testWrongQuery() {
+        String query = "wrong query";
 
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("id", 1);
-        map1.put("first_name", "ala");
-        map1.put("age", 20);
-        Row row1 = new Row(map1);
-
-
-        List<String> columnNames = Arrays.asList("id", "first_name", "age");
-        List<Row> rows = Collections.singletonList(row1);
-        Table expectedTable = new Table(columnNames, rows);
-
-        assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
+        assertThrows(WrongQueryFormatException.class, () -> new SelectService().executeQuery(query));
     }
-
-    @Test
-    public void testExecuteQuery_withFewConditions() throws IOException, GeneralSecurityException {
-        String query = "select * from table.csv where id = 1 or first_name like 'marian' and age > 20";
-
-
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("id", 3);
-        map1.put("first_name", "marian");
-        map1.put("age", 90);
-        Row row1 = new Row(map1);
-
-
-        List<String> columnNames = Arrays.asList("id", "first_name", "age");
-        List<Row> rows = Collections.singletonList(row1);
-        Table expectedTable = new Table(columnNames, rows);
-
-        assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
-    }
-
-    @Test
-    public void testExecuteQuery_withFewConditions2() throws IOException, GeneralSecurityException {
-        String query = "select * from table.csv where id = 1 and first_name like 'marian' or age > 20";
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("id", 2);
-        map1.put("first_name", "tomek");
-        map1.put("age", 30);
-        Row row1 = new Row(map1);
-
-        Map<String, Object> map2 = new HashMap<>();
-        map2.put("id", 3);
-        map2.put("first_name", "marian");
-        map2.put("age", 90);
-        Row row2 = new Row(map2);
-
-        List<String> columnNames = Arrays.asList("id", "first_name", "age");
-        List<Row> rows = Arrays.asList(row1, row2);
-        Table expectedTable = new Table(columnNames, rows);
-
-        assertEquals(expectedTable.toString(), service.executeQuery(query).toString());
-
-    }
-
 }
+
