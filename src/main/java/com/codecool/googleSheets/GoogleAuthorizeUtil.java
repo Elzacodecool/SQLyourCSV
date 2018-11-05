@@ -1,38 +1,58 @@
 package com.codecool.googleSheets;
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.codecool.converter.FileReader;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.MemoryDataStoreFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-
+@Component
 public class GoogleAuthorizeUtil {
 
-    public static Credential authorize() throws IOException, GeneralSecurityException {
-        InputStream in = GoogleAuthorizeUtil.class.getResourceAsStream("/Users/elzbietakrzych/Documents/codecool/ADVANCED/2018_10_29_TW/SQLyourCSV/src/main/resources/credentials.json");
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new InputStreamReader(in));
+    private static final String APPLICATION_NAME = "SQLyourCSV";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    private static GoogleClientSecrets clientSecrets;
+    private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+    private static GoogleAuthorizationCodeFlow flow;
+    private static  NetHttpTransport httpTransport;
 
-        List<String> scopes = Arrays.asList(SheetsScopes.SPREADSHEETS);
+    @Autowired
+    public GoogleAuthorizeUtil() throws IOException, GeneralSecurityException {
+        this.httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), clientSecrets, scopes)
-                .setDataStoreFactory(new MemoryDataStoreFactory())
-                .setAccessType("offline").build();
-        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        InputStream in = FileReader.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        this.clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
-        return credential;
+        this.flow = new GoogleAuthorizationCodeFlow.Builder(
+                httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
     }
 
+    public static Sheets getSheetsService() throws IOException {
+        return new Sheets.Builder(httpTransport, JSON_FACTORY,flow.loadCredential("user"))
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+    }
 
+    public static GoogleAuthorizationCodeFlow getFlow() {
+        return flow;
+    }
 }

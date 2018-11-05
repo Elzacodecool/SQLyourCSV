@@ -1,6 +1,6 @@
 package com.codecool.controlers;
 
-import com.codecool.converter.FileReader;
+import com.codecool.googleSheets.GoogleAuthorizeUtil;
 import com.codecool.model.QueryInterpreter;
 import com.codecool.service.SelectService;
 import com.google.api.client.auth.oauth2.Credential;
@@ -30,7 +30,7 @@ public class QueryController {
     @GetMapping("/query")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void displayQuery(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException, GeneralSecurityException {
-        this.flow = FileReader.getFlow();
+        this.flow = GoogleAuthorizeUtil.getFlow();
 
         Credential credential = flow.loadCredential("user");
         if(credential == null) {
@@ -38,8 +38,6 @@ public class QueryController {
                     .setRedirectUri("http://localhost:8080/callback").build();
             response.sendRedirect(url);
         } else {
-            System.out.println("----------------- new Credential in Query: " + credential);
-            System.out.println("----------------------FlowAuth in /query:" + flow.getClientAuthentication());
             response.sendRedirect("http://localhost:8080/queryP");
         }
     }
@@ -47,8 +45,6 @@ public class QueryController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public String displayQuery(Model model) throws IOException, GeneralSecurityException {
             model.addAttribute("query", new QueryInterpreter());
-        System.out.println("----------------------FlowAuth in /query:" + flow.getClientAuthentication());
-            System.out.println("---------------Before return from display QueryP");
             return "getQuery";
     }
 
@@ -63,10 +59,7 @@ public class QueryController {
                 .set("response_type", "code")
                 .setClientAuthentication(flow.getClientAuthentication());
         TokenResponse tokenResponse = query.execute();
-        System.out.println("-------------------my token: " + tokenResponse.getAccessToken());
         flow.createAndStoreCredential(tokenResponse,"user");
-        Credential credential = flow.loadCredential("user");
-        System.out.println("---------------------Credential in callback:    " + credential);
         response.sendRedirect("http://localhost:8080/queryP");
     }
 
