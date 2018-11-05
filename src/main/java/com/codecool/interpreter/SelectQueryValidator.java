@@ -9,7 +9,7 @@ public class SelectQueryValidator {
     public SelectQueryValidator() {}
 
     public boolean validateQuery(String query) {
-        List<String> queryList = SelectQueryInterpreter.mapQueryToList(query.toLowerCase());
+        List<String> queryList = SelectQueryInterpreter.mapQueryToList(query);
         int index = queryList.indexOf("where");
         List<String> queryListBeforeWHERE;
         List<String> queryListAfterWHERE;

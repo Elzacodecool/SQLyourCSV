@@ -20,8 +20,15 @@ public class Converter {
     public Converter() {
     }
 
-    public Table convert(String filepath) throws IOException, GeneralSecurityException {
-        List<String[]> data = FileReader.readData(filepath);
+    public Table convert(String filepath) {
+        List<String[]> data = null;
+        try {
+            data = FileReader.readData(filepath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
         if (!checkIfDataIsCorrect(data)) {
             throw new WrongDataStructureException("Wrong data structure");
         }

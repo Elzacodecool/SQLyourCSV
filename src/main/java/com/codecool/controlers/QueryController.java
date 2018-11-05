@@ -66,16 +66,8 @@ public class QueryController {
     @PostMapping("/query")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public String displayResult(@ModelAttribute("query") QueryInterpreter query, Model model ) {
-        try {
-            model.addAttribute("queryTable", this.service.executeQuery(query.getQuery()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        }
+        model.addAttribute("queryTable", this.service.executeQuery(query.getQuery()));
         return "response";
-
-
     }
 
 }

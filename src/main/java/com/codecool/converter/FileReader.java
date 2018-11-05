@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class FileReader {
 
     public static List<String[]> readData(String file) throws IOException, GeneralSecurityException{
-
+        System.out.println("-----------------filename:" + file);
         final String spreadsheetId = file;
         final String range = "A1:Z10000";
         Sheets service = GoogleAuthorizeUtil.getSheetsService();

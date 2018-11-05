@@ -29,7 +29,7 @@ public class SelectQuery {
         this.isValidate = validator.validateQuery(query);
 
         if(isValidate) {
-            this.query = query.toLowerCase().replace(";", "");
+            this.query = query.replace(";", "");
             functions = interpreter.getFunctions(this.query);
             columnNames = interpreter.getColumnNames(this.query);
             fileNames = interpreter.getFilenames(this.query);
