@@ -26,20 +26,22 @@ import java.util.stream.Collectors;
 @Service
 public class FileReader {
 
-    @Autowired
-    public FileReader() {
-    }
-
     private static final String APPLICATION_NAME = "Google Sheets API Java Quickstart";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
-
-    /**
-     * Global instance of the scopes required by this quickstart.
-     * If modifying these scopes, delete your previously saved tokens/ folder.
-     */
+    private static GoogleClientSecrets CLIENT_SECRETS;
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+
+    @Autowired
+    public FileReader() throws IOException {
+        InputStream in = FileReader.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        CLIENT_SECRETS = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+    }
+
+    public GoogleClientSecrets getClientSecrets() {
+        return CLIENT_SECRETS;
+    }
 
     /**
      * Creates an authorized Credential object.
@@ -49,12 +51,11 @@ public class FileReader {
      */
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         // Load client secrets.
-        InputStream in = FileReader.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
 
         // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                HTTP_TRANSPORT, JSON_FACTORY, CLIENT_SECRETS, SCOPES)
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build();
