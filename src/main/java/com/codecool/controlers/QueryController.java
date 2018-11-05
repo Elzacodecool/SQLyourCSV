@@ -1,15 +1,10 @@
 package com.codecool.controlers;
 
-import com.codecool.converter.Converter;
 import com.codecool.converter.FileReader;
-import com.codecool.googleSheets.GoogleAuthorizeUtil;
 import com.codecool.model.QueryInterpreter;
 import com.codecool.service.SelectService;
-import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
@@ -17,20 +12,18 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
 @Controller
-@RequestMapping("/query")
+@RequestMapping()
 public class QueryController {
 
     @Autowired
@@ -39,7 +32,7 @@ public class QueryController {
     @Autowired
     FileReader  fileReader;
 
-    @GetMapping()
+    @GetMapping("/query")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public String displayQuery(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException, GeneralSecurityException {
         System.out.println("___________________Here");
@@ -64,11 +57,11 @@ public class QueryController {
     }
 
     @GetMapping("/callback")
-    public void getToken() {
+    public void getToken(HttpServletRequest request, HttpServletResponse response) {
 
     }
 
-    @PostMapping()
+    @PostMapping("/query")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public String displayResult(@ModelAttribute("query") QueryInterpreter query, Model model ) {
         try {
