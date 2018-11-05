@@ -4,11 +4,9 @@ import com.codecool.converter.FileReader;
 import com.codecool.model.QueryInterpreter;
 import com.codecool.service.SelectService;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.MemoryDataStoreFactory;
-import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -19,46 +17,57 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.List;
 
 @Controller
 @RequestMapping()
 public class QueryController {
+    private GoogleAuthorizationCodeFlow flow;
 
     @Autowired
     SelectService service;
 
-    @Autowired
-    FileReader  fileReader;
 
     @GetMapping("/query")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String displayQuery(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException, GeneralSecurityException {
-        System.out.println("___________________Here");
-        List<String> scopes = Arrays.asList(SheetsScopes.SPREADSHEETS);
+    public void displayQuery(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException, GeneralSecurityException {
+        this.flow = FileReader.getFlow();
 
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), fileReader.getClientSecrets(), scopes)
-                .setDataStoreFactory(new MemoryDataStoreFactory())
-                .setAccessType("offline").build();
         Credential credential = flow.loadCredential("user");
         if(credential == null) {
             String url = flow.newAuthorizationUrl().setState("xyz")
                     .setRedirectUri("http://localhost:8080/callback").build();
             response.sendRedirect(url);
-
-         //  String code =  flow.newTokenRequest(response.getHeader("code"));
-
+        } else {
+            System.out.println("----------------- new Credential in Query: " + credential);
+            System.out.println("----------------------FlowAuth in /query:" + flow.getClientAuthentication());
+            response.sendRedirect("http://localhost:8080/queryP");
         }
-
-        model.addAttribute("query", new QueryInterpreter());
-        return "getQuery";
-
+    }
+    @GetMapping("/queryP")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String displayQuery(Model model) throws IOException, GeneralSecurityException {
+            model.addAttribute("query", new QueryInterpreter());
+        System.out.println("----------------------FlowAuth in /query:" + flow.getClientAuthentication());
+            System.out.println("---------------Before return from display QueryP");
+            return "getQuery";
     }
 
     @GetMapping("/callback")
-    public void getToken(HttpServletRequest request, HttpServletResponse response) {
+    public void getToken(HttpServletRequest request, HttpServletResponse response) throws IOException, GeneralSecurityException {
+        String code = request.getParameter("code");
 
+        GoogleAuthorizationCodeTokenRequest query = flow.newTokenRequest(code)
+                .setRedirectUri("http://localhost:8080/callback")
+                .setGrantType("authorization_code")
+                .setCode(code)
+                .set("response_type", "code")
+                .setClientAuthentication(flow.getClientAuthentication());
+        TokenResponse tokenResponse = query.execute();
+        System.out.println("-------------------my token: " + tokenResponse.getAccessToken());
+        flow.createAndStoreCredential(tokenResponse,"user");
+        Credential credential = flow.loadCredential("user");
+        System.out.println("---------------------Credential in callback:    " + credential);
+        response.sendRedirect("http://localhost:8080/queryP");
     }
 
     @PostMapping("/query")
