@@ -30,8 +30,8 @@ class SelectQueryTest {
                                          "select * table join on from table2",
                                          "select abc from table from table2 join table3",
                                          "select * from table abc join table2 on id = id2",
-                                         "select * from table join table2 on id = id2 AND id = id",
-                                         "select sum(abc), a, v from table join table2 on id = id2 AND id = id"};
+                                         "select * from table join table2 on id = id2 and id = id",
+                                         "select sum(abc), a, v from table join table2 on id = id2 and id = id"};
 
 
 
