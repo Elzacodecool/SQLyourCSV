@@ -25,7 +25,6 @@ public class SelectQuery {
 
 
     public SelectQuery(String query) {
-        super();
         this.isValidate = validator.validateQuery(query);
 
         if(isValidate) {
@@ -40,6 +39,8 @@ public class SelectQuery {
         }
     }
 
+    public SelectQuery() {
+    }
 
     public List<String> getFileNames() {
         return fileNames;

@@ -1,7 +1,7 @@
 package com.codecool.controlers;
 
 import com.codecool.googleSheets.GoogleAuthorizeUtil;
-import com.codecool.model.QueryInterpreter;
+import com.codecool.model.query.SelectQuery;
 import com.codecool.service.SelectService;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 
 @Controller
 @RequestMapping()
@@ -29,7 +28,7 @@ public class QueryController {
 
     @GetMapping("/query")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void displayQuery(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException, GeneralSecurityException {
+    public void displayQuery(HttpServletResponse response) throws IOException {
         this.flow = GoogleAuthorizeUtil.getFlow();
 
         Credential credential = flow.loadCredential("user");
@@ -43,13 +42,13 @@ public class QueryController {
     }
     @GetMapping("/queryP")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String displayQuery(Model model) throws IOException, GeneralSecurityException {
-            model.addAttribute("query", new QueryInterpreter());
+    public String displayQuery(Model model) {
+            model.addAttribute("query", new SelectQuery());
             return "getQuery";
     }
 
     @GetMapping("/callback")
-    public void getToken(HttpServletRequest request, HttpServletResponse response) throws IOException, GeneralSecurityException {
+    public void getToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String code = request.getParameter("code");
 
         GoogleAuthorizationCodeTokenRequest query = flow.newTokenRequest(code)
@@ -65,7 +64,7 @@ public class QueryController {
 
     @PostMapping("/query")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String displayResult(@ModelAttribute("query") QueryInterpreter query, Model model ) {
+    public String displayResult(@ModelAttribute("query") SelectQuery query, Model model ) {
         model.addAttribute("queryTable", this.service.executeQuery(query.getQuery()));
         return "response";
     }
