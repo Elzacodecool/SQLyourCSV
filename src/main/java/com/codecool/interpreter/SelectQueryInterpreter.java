@@ -91,6 +91,9 @@ public class SelectQueryInterpreter {
     }
 
     public Predicate<Row> getWherePredicate(String query) {
+        if (query.contains("group by")) {
+            return getPredicate(query.substring(0, query.indexOf("group by")), "where");
+        }
         return getPredicate(query, "where");
     }
 
