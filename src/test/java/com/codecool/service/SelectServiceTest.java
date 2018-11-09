@@ -1,9 +1,10 @@
 package com.codecool.service;
 
+import com.codecool.converter.Converter;
 import com.codecool.exception.WrongQueryFormatException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -13,9 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class SelectServiceTest {
+    private SelectService service;
 
-    @Autowired
-    SelectService service;
+    @Before
+    public void setUp() {
+        service = new SelectService(new Converter(new CsvFileReader()));
+    }
+
 
     @Test
     public void testExecuteQuery_allColumns() {
@@ -31,7 +36,7 @@ public class SelectServiceTest {
 
     @Test
     public void testExecuteQuery_columnNames() {
-        String query = "select id, first_name from table.csv;";
+        String query = "select id, first_name from table.csv";
 
         String expected = "        id | first_name\n" +
                           "         1 |        ala\n" +
