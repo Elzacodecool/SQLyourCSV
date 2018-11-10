@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+
 public class SelectQuery {
     private SelectQueryInterpreter interpreter = new SelectQueryInterpreter();
     private SelectQueryValidator validator = new SelectQueryValidator();
