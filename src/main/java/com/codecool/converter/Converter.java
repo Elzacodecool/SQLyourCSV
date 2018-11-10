@@ -26,8 +26,6 @@ public class Converter {
             data = FileReader.readData(filepath);
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
         }
         if (!checkIfDataIsCorrect(data)) {
             throw new WrongDataStructureException("Wrong data structure");
