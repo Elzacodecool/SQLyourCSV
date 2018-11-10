@@ -1,7 +1,6 @@
 package com.codecool.service;
 
 import com.codecool.converter.Converter;
-import com.codecool.exception.WrongQueryFormatException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -133,13 +131,6 @@ public class SelectServiceTest {
         String expected = "  avg(age)\n";
 
         assertEquals(expected, service.executeQuery(query).toString());
-    }
-
-    @Test
-    public void testWrongQuery() {
-        String query = "wrong query";
-
-        assertThrows(WrongQueryFormatException.class, () -> new SelectService().executeQuery(query));
     }
 }
 

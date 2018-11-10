@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public class SelectQuery {
-    private SelectQueryInterpreter interpreter = new SelectQueryInterpreter();
-    private SelectQueryValidator validator = new SelectQueryValidator();
-
     private String query;
 
     private List<String> fileNames;
@@ -25,10 +22,11 @@ public class SelectQuery {
 
 
     public SelectQuery(String query) {
-        this.isValidate = validator.validateQuery(query);
+        this.isValidate = new SelectQueryValidator().validateQuery(query);
 
         if(isValidate) {
             this.query = query.replace(";", "");
+            SelectQueryInterpreter interpreter = new SelectQueryInterpreter();
             functions = interpreter.getFunctions(this.query);
             columnNames = interpreter.getColumnNames(this.query);
             fileNames = interpreter.getFilenames(this.query);

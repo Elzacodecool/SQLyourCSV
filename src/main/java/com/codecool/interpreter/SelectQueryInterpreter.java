@@ -2,7 +2,6 @@ package com.codecool.interpreter;
 
 import com.codecool.model.Row;
 import com.codecool.model.query.SQLAggregateFunctions;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.Predicate;
