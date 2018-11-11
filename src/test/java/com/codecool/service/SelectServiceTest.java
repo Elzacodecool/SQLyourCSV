@@ -1,9 +1,8 @@
 package com.codecool.service;
 
-import com.codecool.converter.Converter;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -12,12 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class SelectServiceTest {
+    @Autowired
     private SelectService service;
-
-    @Before
-    public void setUp() {
-        service = new SelectService(new Converter(new CsvFileReader()));
-    }
 
 
     @Test

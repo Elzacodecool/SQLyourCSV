@@ -2,12 +2,14 @@ package com.codecool.interpreter;
 
 import com.codecool.model.Row;
 import com.codecool.model.query.SQLAggregateFunctions;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Component
 public class SelectQueryInterpreter {
     public SelectQueryInterpreter() {}
 

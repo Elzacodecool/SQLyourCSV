@@ -20,10 +20,12 @@ import java.util.stream.Stream;
 @Service
 public class SelectService extends QueryService {
     private Converter converter;
+    private SelectQuery selectQuery;
 
     @Autowired
-    public SelectService(Converter converter) {
+    public SelectService(Converter converter, SelectQuery selectQuery) {
         this.converter = converter;
+        this.selectQuery = selectQuery;
     }
 
 
@@ -32,7 +34,8 @@ public class SelectService extends QueryService {
 
     @Override
     public Table executeQuery(String query) {
-        SelectQuery selectQuery = new SelectQuery(query);
+        selectQuery.setQuery(query);
+
         if(!selectQuery.isValidate()) {
             throw new WrongQueryFormatException("wrong Query format");
         }
