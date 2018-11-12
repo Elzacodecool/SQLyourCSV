@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +43,13 @@ public class Converter {
                 ).collect(Collectors.toList());
 
         return new Table(columnNames, rows);
+    }
+
+    public void convertBeforeWriting(Table table, String file) throws IOException {
+        List<List<Object>> values = new ArrayList();
+        values.add(table.getColumnNames().stream().map(Object.class::cast).collect(Collectors.toList()));
+        values.add(table.getRows().stream().map(n->n.getValuesFromRow().stream().map(Object.class::cast).collect(Collectors.toList())).collect(Collectors.toList()));
+        fileReader.writeData(file, values);
     }
 
     private boolean checkIfDataIsCorrect(List<String[]> data) {

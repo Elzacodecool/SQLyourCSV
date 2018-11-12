@@ -31,16 +31,13 @@ public class FileReader {
         return response.getValues().stream().map(list -> list.stream().map(element -> (String)element).toArray(String[]::new)).collect(Collectors.toList());
     }
 
-    public static void writeData(String file, Table table) throws IOException {
-        List<List<Object>> values = new ArrayList();
+    public static void writeData(String file,List<List<Object>> values) throws IOException {
+
         final String spreadsheetId = convertNameToGoogleSheetId(file);
         final String range = "A1:Z10000";
         final  String valueInputOption = "RAW";
 
         Sheets service = GoogleAuthorizeUtil.getSheetsService();
-
-        values.add(table.getColumnNames().stream().map(Object.class::cast).collect(Collectors.toList()));
-        values.add(table.getRows().stream().map(n->n.getValuesFromRow().stream().map(Object.class::cast).collect(Collectors.toList())).collect(Collectors.toList()));
 
         ValueRange body = new ValueRange()
                 .setValues(values);
