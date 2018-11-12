@@ -57,13 +57,28 @@ public class FileReader {
     private static String convertNameToGoogleSheetId(String fileName) throws IOException {
         Drive drive = GoogleAuthorizeUtil.getDriveService();
         System.out.println("_____________After creating drive");
-        FileList result = drive.files().list().set("name",fileName).execute();
-        System.out.println("result:_______ " + result);
-        for (File file : result.getFiles()) {
-            System.out.printf("Found file: %s (%s)\n", file.getId());
-            return file.getId();
-        }
+        List<File> result = new ArrayList<File>();
+        Drive.Files.List request = drive.files().list();
+
+        do {
+            try {
+                FileList files = request.execute();
+                result.addAll(files.getFiles());
+                request.setPageToken(files.getNextPageToken());
+                for (File file : result) {
+                    if(file.getName().equals(fileName)) {
+                        return file.getId();
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("An error occurred: " + e);
+                request.setPageToken(null);
+            }
+        } while (request.getPageToken() != null &&
+                request.getPageToken().length() > 0);
+
         return null;
+
     }
 }
 
