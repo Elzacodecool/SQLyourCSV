@@ -10,18 +10,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-public class SelectQueryInterpreter {
+public class SelectQueryInterpreter extends QueryInterpreter {
     public SelectQueryInterpreter() {}
 
     public List<String> getFilenames(String query) {
         List<String> words = Arrays.asList(query.split(" "));
+
+        return Stream.concat(Stream.of(getFilename(query)), getJoinFileNames(words).stream())
+                     .collect(Collectors.toList());
+    }
+
+    private String getFilename(String query) {
+        List<String> words = Arrays.asList(query.split(" "));
         int indexFrom = words.indexOf("from");
 
-        String fileName = words.get(indexFrom + 1);
-
-
-        return Stream.concat(Stream.of(fileName), getJoinFileNames(words).stream())
-                     .collect(Collectors.toList());
+        return words.get(indexFrom + 1);
     }
 
     private List<String> getJoinFileNames(List<String> query) {
@@ -70,17 +73,6 @@ public class SelectQueryInterpreter {
                 .collect(Collectors.toList());
     }
 
-    public static List<String> mapQueryToList(String text) {
-        return Arrays.stream(Arrays.stream(text.split(" "))
-                .map(word -> word.length() > 1 ? word.replace("=", " = ") : word)
-                .map(word -> !word.contains("<>") && word.length() > 1 ? word.replace(">", " > ") : word)
-                .map(word -> !word.contains("<>") && word.length() > 1 ? word.replace("<", " < ") : word)
-                .map(word -> word.length() > 2 ? word.replace("<>", " <> ") : word)
-                .collect(Collectors.joining(" "))
-                .split(" "))
-                .collect(Collectors.toList());
-    }
-
     public String getGroupBy(String query) {
         List<String> words = Arrays.asList(query.split(" "));
         int indexFrom = words.indexOf("group");
@@ -102,83 +94,15 @@ public class SelectQueryInterpreter {
         return getPredicate(query, "having");
     }
 
-    private Predicate<Row> getPredicate(String query, String conditionWord) {
-        if (query.contains(conditionWord)) {
-            List<String> queryList = mapQueryToList(query);
-            List<String> condition = queryList.stream()
-                    .skip(queryList.indexOf(conditionWord) + 1)
-                    .collect(Collectors.toList());
-            return buildPredicate(condition);
-        }
-
-        return (row) -> true;
-    }
-
-    private Predicate<Row> buildPredicate(List<String> condition) {
-        Predicate<Row> predicate;
-        String columnName = condition.get(condition.size()-3);
-        String operator = condition.get(condition.size()-2);
-        String value = condition.get(condition.size()-1).replace("\'", "");
-
-
-        switch (operator) {
-            case "=":
-                predicate = (row) -> row.getData().get(columnName).toString().equals(value);
-                break;
-            case ">":
-                predicate = (row) -> Float.valueOf(row.getData().get(columnName).toString()) > Float.valueOf(value);
-                break;
-            case "<":
-                predicate = (row) -> Float.valueOf(row.getData().get(columnName).toString()) < Float.valueOf(value);
-                break;
-            case "<>":
-                predicate = (row) -> !row.getData().get(columnName).toString().equals(value);
-                break;
-            case "like":
-                predicate = (row) -> row.getData().get(columnName) instanceof String &&
-                        like(row.getData().get(columnName).toString(), value);
-                break;
-            default:
-                return (row) -> false;
-        }
-
-        if (condition.size() > 3 && condition.get(condition.size()-4).equals("or")) {
-            return predicate.or(buildPredicate(condition.subList(0, condition.size()-4)));
-        } else if (condition.size() > 3 && condition.get(condition.size()-4).equals("and")) {
-            return predicate.and(buildPredicate(condition.subList(0, condition.size()-4)));
-        }
-        return predicate;
-    }
-
-    private boolean like(String string, String value) {
-        String expression = value.replace(".", "\\.")
-                .replace("_", ".")
-                .replace("%", ".*");
-        return string.matches(expression);
-    }
-
     public List<List<String>> getJoinConditions(String query) {
-        if(query.contains("on")) {
+        String wordCondition = "on";
+        if(query.contains(wordCondition)) {
             List<String> queryList = mapQueryToList(query);
             List<String> condition = queryList.stream()
-                    .skip(queryList.indexOf("on") + 1)
+                    .skip(queryList.indexOf(wordCondition) + 1)
                     .collect(Collectors.toList());
-            return buildJoinCondition(condition);
+            return buildCondition(condition, wordCondition);
         }
         return null;
-
-    }
-
-    private List<List<String>> buildJoinCondition(List<String> condition) {
-
-        int index = condition.indexOf("on");
-        String[] columnSet = {condition.get(0), condition.get(2)};
-        if (index < 0) {
-            return Collections.singletonList(Arrays.asList(columnSet));
-        } else {
-            return Stream.concat(Stream.of(Arrays.asList(columnSet)),
-                    buildJoinCondition(condition.subList(index + 1, condition.size())).stream())
-                    .collect(Collectors.toList());
-        }
     }
 }
