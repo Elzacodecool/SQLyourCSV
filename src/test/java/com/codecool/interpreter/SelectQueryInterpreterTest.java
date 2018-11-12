@@ -71,7 +71,7 @@ public class SelectQueryInterpreterTest {
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
 
-    private List<Row> getExampleRows() {
+    static List<Row> getExampleRows() {
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 1);
         map1.put("first_name", "ala");
