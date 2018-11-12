@@ -20,9 +20,7 @@ import java.util.stream.Collectors;
 public class FileReader {
 
     public static List<String[]> readData(String file) throws IOException {
-        System.out.println("_____________ in read data");
         final String spreadsheetId = convertNameToGoogleSheetId(file);
-        System.out.println("__________spread sheet id " + spreadsheetId);
         final String range = "A1:Z10000";
         Sheets service = GoogleAuthorizeUtil.getSheetsService();
 
@@ -56,7 +54,6 @@ public class FileReader {
 
     private static String convertNameToGoogleSheetId(String fileName) throws IOException {
         Drive drive = GoogleAuthorizeUtil.getDriveService();
-        System.out.println("_____________After creating drive");
         List<File> result = new ArrayList<File>();
         Drive.Files.List request = drive.files().list();
 
@@ -78,7 +75,6 @@ public class FileReader {
                 request.getPageToken().length() > 0);
 
         return null;
-
     }
 }
 
