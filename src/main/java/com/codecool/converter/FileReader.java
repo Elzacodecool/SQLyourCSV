@@ -33,7 +33,7 @@ public class FileReader {
 
     public static void writeData(String file, Table table) throws IOException {
         List<List<Object>> values = new ArrayList();
-        final String spreadsheetId = file;
+        final String spreadsheetId = convertNameToGoogleSheetId(file);
         final String range = "A1:Z10000";
         final  String valueInputOption = "RAW";
 
