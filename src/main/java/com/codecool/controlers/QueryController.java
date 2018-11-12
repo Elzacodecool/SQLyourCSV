@@ -22,8 +22,12 @@ import java.io.IOException;
 public class QueryController {
     private GoogleAuthorizationCodeFlow flow;
 
+    private final SelectService service;
+
     @Autowired
-    SelectService service;
+    public QueryController(SelectService service) {
+        this.service = service;
+    }
 
 
     @GetMapping("/query")
@@ -42,8 +46,7 @@ public class QueryController {
     }
     @GetMapping("/queryP")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String displayQuery(Model model) {
-            model.addAttribute("query", new SelectQuery());
+    public String displayQuery() {
             return "getQuery";
     }
 
@@ -64,8 +67,8 @@ public class QueryController {
 
     @PostMapping("/query")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String displayResult(@ModelAttribute("query") SelectQuery query, Model model ) {
-        model.addAttribute("queryTable", this.service.executeQuery(query.getQuery()));
+    public String displayResult(@RequestParam(value = "query") String query, Model model ) {
+        model.addAttribute("queryTable", this.service.executeQuery(query));
         return "response";
     }
 

@@ -32,8 +32,6 @@ public class SelectQuery {
         this.interpreter = interpreter;
     }
 
-    public SelectQuery() {
-    }
 
     public void setQuery(String query) {
         this.isValidate = validator.validateQuery(query);

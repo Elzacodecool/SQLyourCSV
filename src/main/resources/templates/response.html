@@ -16,10 +16,10 @@
     <h5 class="card-header">SQLyourCSV</h5>
     <div class="card-body">
 
-        <form class="container" action="#" th:action="@{/query}" th:object="${query}" method="post">
+        <form class="container" action="#" th:action="@{/query}" method="post">
             <h5 class="card-title">Provide query</h5>
 
-            <input class="form-control form-control-lg" type="text"th:field="*{query}"><br>
+            <input class="form-control form-control-lg" type="text" name="query"><br>
 
             <input class="btn btn-info btn-block" type="submit" value="Submit"/>
 
