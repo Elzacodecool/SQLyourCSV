@@ -47,8 +47,8 @@ public class GoogleAuthorizeUtil {
         this.flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
-                .setAccessType("offline")
                 .build();
+        flow.getCredentialDataStore().delete("user");
     }
 
     public static Sheets getSheetsService() throws IOException {
