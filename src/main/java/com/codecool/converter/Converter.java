@@ -15,15 +15,17 @@ import java.util.stream.Collectors;
 
 @Component
 public class Converter {
+    private FileReader fileReader;
 
     @Autowired
-    public Converter() {
+    public Converter(FileReader fileReader) {
+        this.fileReader = fileReader;
     }
 
     public Table convert(String filepath) {
         List<String[]> data = null;
         try {
-            data = FileReader.readData(filepath);
+            data = fileReader.readData(filepath);
         } catch (IOException e) {
             e.printStackTrace();
         }

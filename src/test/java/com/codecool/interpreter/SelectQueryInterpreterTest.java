@@ -1,9 +1,10 @@
-package com.codecool.model.query;
+package com.codecool.interpreter;
 
 import com.codecool.model.Row;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import com.codecool.model.query.SQLAggregateFunctions;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -14,66 +15,47 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class SelectQueryTest {
-
-    private SelectQuery selectQuery;
-
-    private String[] correctQueries = {"select * from table;",
-                                       "select a,b,c,d from table;",
-                                       "select a,b,c from table join table2 on id=inner_id;",
-                                       "select * from table join table2 on a=b;"};
-
-    private String[] incorrectQueries = {"dkajdsa",
-                                         "select from tabela",
-                                         "select abc from table join table2",
-                                         "select cc table from join table2",
-                                         "select * table join on from table2",
-                                         "select abc from table from table2 join table3",
-                                         "select * from table abc join table2 on id = id2",
-                                         "select * from table join table2 on id = id2 and id = id",
-                                         "select sum(abc), a, v from table join table2 on id = id2 and id = id"};
-
+public class SelectQueryInterpreterTest {
+    @Autowired
+    private SelectQueryInterpreter interpreter;
 
 
     @Test
     public void testFileName() {
         String query = "select * from table";
-        selectQuery = new SelectQuery(query);
 
-        assertEquals("table", selectQuery.getFileNames().get(0));
+        assertEquals("table", interpreter.getFilenames(query).get(0));
     }
 
     @Test
     public void testFileNames_withJoins() {
         String query = "select * from table join table2 on id=id2 join table3 on id=id2";
-        selectQuery = new SelectQuery(query);
 
-        assertEquals(Arrays.asList("table", "table2", "table3"), selectQuery.getFileNames());
+        assertEquals(Arrays.asList("table", "table2", "table3"), interpreter.getFilenames(query));
     }
 
     @Test
     public void testListColumns() {
         String query = "select max(id), id, name, min(count), age from table";
-        selectQuery = new SelectQuery(query);
 
         List<String> expectedColumns = Arrays.asList("id", "name", "age");
 
-        assertEquals(expectedColumns, selectQuery.getColumnNames());
+        assertEquals(expectedColumns, interpreter.getColumnNames(query));
     }
 
    @Test
     public void testFunctionsMap() {
         String query = "select max(id), id, name, min(count), min(age), age from table";
-        selectQuery = new SelectQuery(query);
 
-        assertEquals(Collections.singletonList("max(id)"), selectQuery.getFunctions().get(SQLAggregateFunctions.MAX));
-        assertEquals(Arrays.asList("min(count)", "min(age)"), selectQuery.getFunctions().get(SQLAggregateFunctions.MIN));
+        assertEquals(Collections.singletonList("max(id)"),
+                interpreter.getFunctions(query).get(SQLAggregateFunctions.MAX));
+        assertEquals(Arrays.asList("min(count)", "min(age)"),
+                interpreter.getFunctions(query).get(SQLAggregateFunctions.MIN));
     }
 
     @Test
     public void testWhereConditionPredicate_equalsOperator() {
         String query = "select * from table where id = 1";
-        selectQuery = new SelectQuery(query);
 
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 1);
@@ -82,7 +64,7 @@ class SelectQueryTest {
         Row row1 = new Row(map1);
 
         List<Row> resultRows = getExampleRows().stream()
-                .filter(selectQuery.getWhereCondition())
+                .filter(interpreter.getWherePredicate(query))
                 .collect(Collectors.toList());
         List<Row> expectedRows = Collections.singletonList(row1);
 
@@ -113,19 +95,17 @@ class SelectQueryTest {
 
     @Test
     public void testWhereConditionPredicate_withoutCondition() {
-        String query = "select * from table.csv;";
-        selectQuery = new SelectQuery(query);
+        String query = "select * from table.csv";
 
         List<Row> resultRows = getExampleRows().stream()
-                .filter(selectQuery.getWhereCondition())
+                .filter(interpreter.getWherePredicate(query))
                 .collect(Collectors.toList());
         assertEquals(getExampleRows().toString(), resultRows.toString());
     }
 
     @Test
     public void testWhereConditionPredicate_withGreaterOperator() {
-        String query = "select * from table.csv where age > 30;";
-        selectQuery = new SelectQuery(query);
+        String query = "select * from table.csv where age > 30";
 
         Map<String, Object> map3 = new HashMap<>();
         map3.put("id", 3);
@@ -135,15 +115,14 @@ class SelectQueryTest {
 
         List<Row> expectedRows = Collections.singletonList(row3);
         List<Row> resultRows = getExampleRows().stream()
-                .filter(selectQuery.getWhereCondition())
+                .filter(interpreter.getWherePredicate(query))
                 .collect(Collectors.toList());
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
 
     @Test
     public void testWhereConditionStatement_withSmallerOperator() {
-        String query = "select * from table.csv where age < 30;";
-        selectQuery = new SelectQuery(query);
+        String query = "select * from table.csv where age < 30";
 
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 1);
@@ -154,15 +133,14 @@ class SelectQueryTest {
 
         List<Row> expectedRows = Collections.singletonList(row1);
         List<Row> resultRows = getExampleRows().stream()
-                .filter(selectQuery.getWhereCondition())
+                .filter(interpreter.getWherePredicate(query))
                 .collect(Collectors.toList());
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
 
     @Test
     public void testWhereConditionPredicate_notEqualsOperator() {
-        String query = "select * from table.csv where age <> 20;";
-        selectQuery = new SelectQuery(query);
+        String query = "select * from table.csv where age <> 20";
 
         Map<String, Object> map2 = new HashMap<>();
         map2.put("id", 2);
@@ -178,15 +156,14 @@ class SelectQueryTest {
 
         List<Row> expectedRows = Arrays.asList(row2, row3);
         List<Row> resultRows = getExampleRows().stream()
-                .filter(selectQuery.getWhereCondition())
+                .filter(interpreter.getWherePredicate(query))
                 .collect(Collectors.toList());
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
 
     @Test
     public void testWhereConditionPredicate_withLikeOperator() {
-        String query = "select * from table.csv where first_name like '_l%';";
-        selectQuery = new SelectQuery(query);
+        String query = "select * from table.csv where first_name like '_l%'";
 
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 1);
@@ -196,18 +173,17 @@ class SelectQueryTest {
 
         List<Row> expectedRows = Collections.singletonList(row1);
         List<Row> resultRows = getExampleRows().stream()
-                .filter(selectQuery.getWhereCondition())
+                .filter(interpreter.getWherePredicate(query))
                 .collect(Collectors.toList());
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
 
     @Test
     public void testWhereConditionPredicate_wrongOperator() {
-        String query = "select * from table.csv where age ! 20;";
-        selectQuery = new SelectQuery(query);
+        String query = "select * from table.csv where age ! 20";
 
         List<Row> resultRows = getExampleRows().stream()
-                .filter(selectQuery.getWhereCondition())
+                .filter(interpreter.getWherePredicate(query))
                 .collect(Collectors.toList());
         assertTrue(resultRows.isEmpty());
     }
@@ -215,7 +191,6 @@ class SelectQueryTest {
     @Test
     public void testWhereConditionPredicate_withFewConditions() {
         String query = "select * from table.csv where id = 1 or first_name like 'marian' and age > 20";
-        selectQuery = new SelectQuery(query);
 
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 3);
@@ -225,7 +200,7 @@ class SelectQueryTest {
 
         List<Row> expectedRows = Collections.singletonList(row1);
         List<Row> resultRows = getExampleRows().stream()
-                .filter(selectQuery.getWhereCondition())
+                .filter(interpreter.getWherePredicate(query))
                 .collect(Collectors.toList());
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
@@ -233,7 +208,6 @@ class SelectQueryTest {
     @Test
     public void testWhereConditionPredicate_withFewConditions2() {
         String query = "select * from table.csv where id = 1 and first_name like 'marian' or age > 20";
-        selectQuery = new SelectQuery(query);
 
         Map<String, Object> map1 = new HashMap<>();
         map1.put("id", 2);
@@ -249,7 +223,7 @@ class SelectQueryTest {
 
         List<Row> expectedRows = Arrays.asList(row1, row2);
         List<Row> resultRows = getExampleRows().stream()
-                .filter(selectQuery.getWhereCondition())
+                .filter(interpreter.getWherePredicate(query))
                 .collect(Collectors.toList());
         assertEquals(expectedRows.toString(), resultRows.toString());
     }
@@ -257,47 +231,31 @@ class SelectQueryTest {
     @Test
     public void testJoinConditions() {
         String query = "select * from table join table2 on id=id2 join table3 on id=id3";
-        selectQuery = new SelectQuery(query);
 
         List<List<String>> expectedConditions = Arrays.asList(Arrays.asList("id", "id2"), Arrays.asList("id", "id3"));
-        assertEquals(expectedConditions, selectQuery.getJoinConditions());
+        assertEquals(expectedConditions, interpreter.getJoinConditions(query));
     }
     @Test
     public void testJoinConditions_null() {
         String query = "select * from table";
-        selectQuery = new SelectQuery(query);
 
-        assertNull(selectQuery.getJoinConditions());
+        assertNull(interpreter.getJoinConditions(query));
     }
 
     @Test
     public void testGroupBy() {
-        String query = "select * from table group by name;";
-        selectQuery = new SelectQuery(query);
+        String query = "select * from table group by name";
 
-        assertEquals("name", selectQuery.getGroupByColumn());
+        assertEquals("name", interpreter.getGroupBy(query));
     }
     @Test
     public void testGroupBy_null() {
-        String query = "select * from table;";
-        selectQuery = new SelectQuery(query);
+        String query = "select * from table";
 
-        assertNull(selectQuery.getGroupByColumn());
+        assertNull(interpreter.getGroupBy(query));
     }
 
-    @Test
-    public void testCorrectQueries() {
-        Arrays.stream(correctQueries)
-                .map(correctQuery -> new SelectQuery(correctQuery).isValidate())
-                .forEach(Assertions::assertTrue);
-    }
 
-    @Test
-    public void testIncorrectQueries() {
-        Arrays.stream(incorrectQueries)
-                .map(incorrectQuery -> new SelectQuery(incorrectQuery).isValidate())
-                .forEach(Assertions::assertFalse);
-    }
 
 
 }
