@@ -9,8 +9,8 @@ import java.util.*;
 
 @Component
 public class CsvFileReader extends FileReader {
-    @Override
-    public List<String[]> readData(String file) {
+
+    public static List<String[]> readData(String file) {
         List<String[]> data = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new java.io.FileReader("src/test/resources/" + file))) {
