@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 public class FileReader {
 
-    public static List<String[]> readData(String file) throws IOException {
+    public List<String[]> readData(String file) throws IOException {
         final String spreadsheetId = convertNameToGoogleSheetId(file);
         final String range = "A1:Z10000";
         Sheets service = GoogleAuthorizeUtil.getSheetsService();
@@ -31,7 +31,7 @@ public class FileReader {
         return response.getValues().stream().map(list -> list.stream().map(element -> (String)element).toArray(String[]::new)).collect(Collectors.toList());
     }
 
-    public static void writeData(String file,List<List<Object>> values) throws IOException {
+    public void writeData(String file,List<List<Object>> values) throws IOException {
 
         final String spreadsheetId = convertNameToGoogleSheetId(file);
         final String range = "A1:Z10000";
@@ -49,7 +49,7 @@ public class FileReader {
         System.out.printf("%d cells updated.", result.getUpdatedCells());
     }
 
-    private static String convertNameToGoogleSheetId(String fileName) throws IOException {
+    private String convertNameToGoogleSheetId(String fileName) throws IOException {
         Drive drive = GoogleAuthorizeUtil.getDriveService();
         List<File> result = new ArrayList<File>();
         Drive.Files.List request = drive.files().list();
