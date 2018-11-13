@@ -1,6 +1,7 @@
 package com.codecool.service;
 
 import com.codecool.converter.Converter;
+import com.codecool.interpreter.UpdateQueryInterpreter;
 import com.codecool.model.Row;
 import com.codecool.model.Table;
 import com.codecool.model.query.UpdateQuery;
@@ -16,12 +17,12 @@ import java.util.stream.Stream;
 @Service
 public class UpdateService extends QueryService {
     private Converter converter;
-    private UpdateQuery updateQuery;
+    private UpdateQueryInterpreter interpreter;
 
     @Autowired
-    public UpdateService(Converter converter, UpdateQuery updateQuery) {
+    public UpdateService(Converter converter, UpdateQueryInterpreter interpreter) {
         this.converter = converter;
-        this.updateQuery = updateQuery;
+        this.interpreter = interpreter;
     }
 
     public UpdateService() {
@@ -29,26 +30,26 @@ public class UpdateService extends QueryService {
 
     @Override
     public Table executeQuery(String query) {
-        updateQuery.setQuery(query);
+        UpdateQuery updateQuery = interpreter.getUpdateQuery(query);
 
         Table table = converter.convert(updateQuery.getFileName());
-        return update(table);
+        return update(table, updateQuery);
     }
 
-    private Table update(Table table) {
-        return new Table(table.getColumnNames(), update(table.getRows()));
+    private Table update(Table table, UpdateQuery updateQuery) {
+        return new Table(table.getColumnNames(), update(table.getRows(), updateQuery));
     }
 
-    private List<Row> update(List<Row> rows) {
+    private List<Row> update(List<Row> rows, UpdateQuery updateQuery) {
         List<Row> rowsToUpdate = rows.stream()
                 .filter(updateQuery.getWhereCondition())
                 .collect(Collectors.toList());
         return rows.stream()
-                .map(row -> rowsToUpdate.contains(row) ? update(row) : row)
+                .map(row -> rowsToUpdate.contains(row) ? update(row, updateQuery) : row)
                 .collect(Collectors.toList());
     }
 
-    private Row update(Row row) {
+    private Row update(Row row, UpdateQuery updateQuery) {
         Map<String, String> conditionMap = updateQuery.getSetCondition().stream()
                 .collect(Collectors.toMap(
                         l -> l.get(0), l -> l.get(1).replace("'", "")

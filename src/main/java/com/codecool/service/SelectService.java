@@ -2,6 +2,7 @@ package com.codecool.service;
 
 import com.codecool.converter.Converter;
 import com.codecool.exception.WrongQueryFormatException;
+import com.codecool.interpreter.SelectQueryInterpreter;
 import com.codecool.model.Row;
 import com.codecool.model.Table;
 import com.codecool.model.query.SQLAggregateFunctions;
@@ -20,12 +21,12 @@ import java.util.stream.Stream;
 @Service
 public class SelectService extends QueryService {
     private Converter converter;
-    private SelectQuery selectQuery;
+    private SelectQueryInterpreter interpreter;
 
     @Autowired
-    public SelectService(Converter converter, SelectQuery selectQuery) {
+    public SelectService(Converter converter, SelectQueryInterpreter interpreter) {
         this.converter = converter;
-        this.selectQuery = selectQuery;
+        this.interpreter = interpreter;
     }
 
 
@@ -34,7 +35,7 @@ public class SelectService extends QueryService {
 
     @Override
     public Table executeQuery(String query) {
-        selectQuery.setQuery(query);
+        SelectQuery selectQuery = interpreter.getSelectQuery(query);
 
         if(!selectQuery.isValidate()) {
             throw new WrongQueryFormatException("wrong Query format");

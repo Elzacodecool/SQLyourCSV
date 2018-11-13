@@ -2,6 +2,8 @@ package com.codecool.interpreter;
 
 import com.codecool.model.Row;
 import com.codecool.model.query.SQLAggregateFunctions;
+import com.codecool.model.query.SelectQuery;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -11,7 +13,12 @@ import java.util.stream.Stream;
 
 @Component
 public class SelectQueryInterpreter extends QueryInterpreter {
-    public SelectQueryInterpreter() {}
+    private SelectQueryValidator validator;
+
+    @Autowired
+    public SelectQueryInterpreter(SelectQueryValidator validator) {
+        this.validator = validator;
+    }
 
     public List<String> getFilenames(String query) {
         List<String> words = Arrays.asList(query.split(" "));
@@ -104,5 +111,20 @@ public class SelectQueryInterpreter extends QueryInterpreter {
             return buildCondition(condition, wordCondition);
         }
         return null;
+    }
+
+    public SelectQuery getSelectQuery(String selectQuery) {
+        String query = selectQuery.replace(";", "");
+        return new SelectQuery(
+                selectQuery,
+                getFilenames(query),
+                getWherePredicate(query),
+                getColumnNames(query),
+                getFunctions(query),
+                getJoinConditions(query),
+                getGroupBy(query),
+                getHavingPredicate(query),
+                validator.validateQuery(query)
+        );
     }
 }

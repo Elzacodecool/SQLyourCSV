@@ -1,16 +1,11 @@
 package com.codecool.model.query;
 
-import com.codecool.interpreter.UpdateQueryInterpreter;
 import com.codecool.model.Row;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.function.Predicate;
 
-@Component
 public class UpdateQuery {
-    private final UpdateQueryInterpreter interpreter;
     private String query;
 
     private String fileName;
@@ -18,16 +13,11 @@ public class UpdateQuery {
     private Predicate<Row> whereCondition;
 
 
-    @Autowired
-    public UpdateQuery(UpdateQueryInterpreter interpreter) {
-        this.interpreter = interpreter;
-    }
-
-    public void setQuery(String query) {
-        this.query = query.replace(";", "");
-        fileName = interpreter.getFilename(this.query);
-        setCondition = interpreter.getSetCondition(this.query);
-        whereCondition = interpreter.getWherePredicate(this.query);
+    public UpdateQuery(String query, String fileName, List<List<String>> setCondition, Predicate<Row> whereCondition) {
+        this.query = query;
+        this.fileName = fileName;
+        this.setCondition = setCondition;
+        this.whereCondition = whereCondition;
     }
 
     public String getQuery() {
