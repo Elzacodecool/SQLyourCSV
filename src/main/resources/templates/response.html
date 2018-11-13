@@ -42,8 +42,8 @@
             </thead>
             <tbody class="text-center">
             <tr th:each="row : ${queryTable.getRows()}">
-                <th:block th:each="cell : ${row.getValuesFromRow()}">
-                    <th th:text="${cell}">Row Field</th>
+                <th:block th:each="column : ${queryTable.getColumnNames()}">
+                    <th th:text="${row.getData().get(column)}">Row Field</th>
                 </th:block>
             </tr>
             </tbody>
