@@ -1,8 +1,7 @@
 package com.codecool.controlers;
 
 import com.codecool.googleSheets.GoogleAuthorizeUtil;
-import com.codecool.model.query.SelectQuery;
-import com.codecool.service.SelectService;
+import com.codecool.service.QueryServiceAdapter;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -23,11 +22,11 @@ import java.security.GeneralSecurityException;
 public class QueryController {
     private GoogleAuthorizationCodeFlow flow;
 
-    private final SelectService service;
+    private final QueryServiceAdapter serviceAdapter;
 
     @Autowired
-    public QueryController(SelectService service) {
-        this.service = service;
+    public QueryController(QueryServiceAdapter service) {
+        this.serviceAdapter = service;
     }
 
 
@@ -37,7 +36,7 @@ public class QueryController {
         this.flow = new GoogleAuthorizeUtil().getFlow();
 
 
-        Credential credential = flow.loadCredential("user");
+        Credential credential = this.flow.loadCredential("user");
         if(credential == null) {
             String url = flow.newAuthorizationUrl().setState("xyz")
                     .setRedirectUri("http://localhost:8080/callback").build();
@@ -46,6 +45,8 @@ public class QueryController {
             response.sendRedirect("http://localhost:8080/queryP");
         }
     }
+
+
     @GetMapping("/queryP")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public String displayQuery() {
@@ -70,7 +71,7 @@ public class QueryController {
     @PostMapping("/query")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public String displayResult(@RequestParam(value = "query") String query, Model model ) {
-        model.addAttribute("queryTable", this.service.executeQuery(query));
+        model.addAttribute("queryTable", this.serviceAdapter.executeQuery(query));
         return "response";
     }
 
