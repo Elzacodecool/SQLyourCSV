@@ -1,6 +1,7 @@
 package com.codecool.interpreter;
 
 import com.codecool.model.Row;
+import com.codecool.model.query.DeleteQuery;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -18,5 +19,15 @@ public class DeleteQueryInterpreter extends QueryInterpreter {
 
     public Predicate<Row> getWherePredicate(String query) {
         return getPredicate(query, "where");
+    }
+
+    public DeleteQuery getDeleteQuery(String deleteQuery) {
+        String query = deleteQuery.replace(";", "");
+
+        return new DeleteQuery(
+                deleteQuery,
+                getFilename(query),
+                getWherePredicate(query)
+        );
     }
 }

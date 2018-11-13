@@ -1,19 +1,12 @@
 package com.codecool.model.query;
 
-import com.codecool.interpreter.SelectQueryInterpreter;
-import com.codecool.interpreter.SelectQueryValidator;
 import com.codecool.model.Row;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-@Component
 public class SelectQuery {
-    private SelectQueryInterpreter interpreter;
-    private SelectQueryValidator validator;
     private String query;
 
     private List<String> fileNames;
@@ -26,23 +19,20 @@ public class SelectQuery {
     private boolean isValidate;
 
 
-    @Autowired
-    public SelectQuery(SelectQueryValidator validator, SelectQueryInterpreter interpreter) {
-        this.validator = validator;
-        this.interpreter = interpreter;
-    }
+    public SelectQuery(String query, List<String> fileNames, Predicate<Row> whereCondition,
+                       List<String> columnNames, Map<SQLAggregateFunctions, List<String>> functions,
+                       List<List<String>> joinConditions, String groupByColumn, Predicate<Row> havingCondition,
+                       boolean isValidate) {
 
-
-    public void setQuery(String query) {
-        this.isValidate = validator.validateQuery(query);
-        this.query = query.replace(";", "");
-        functions = interpreter.getFunctions(this.query);
-        columnNames = interpreter.getColumnNames(this.query);
-        fileNames = interpreter.getFilenames(this.query);
-        groupByColumn = interpreter.getGroupBy(this.query);
-        whereCondition = interpreter.getWherePredicate(this.query);
-        havingCondition = interpreter.getHavingPredicate(this.query);
-        joinConditions = interpreter.getJoinConditions(this.query);
+        this.query = query;
+        this.fileNames = fileNames;
+        this.whereCondition = whereCondition;
+        this.columnNames = columnNames;
+        this.functions = functions;
+        this.joinConditions = joinConditions;
+        this.groupByColumn = groupByColumn;
+        this.havingCondition = havingCondition;
+        this.isValidate = isValidate;
     }
 
     public List<String> getFileNames() {

@@ -1,6 +1,7 @@
 package com.codecool.interpreter;
 
 import com.codecool.model.Row;
+import com.codecool.model.query.UpdateQuery;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -28,5 +29,16 @@ public class UpdateQueryInterpreter extends QueryInterpreter {
                 .filter(word -> words.indexOf(word) > setIndex)
                 .collect(Collectors.toList());
         return buildCondition(condition, ",");
+    }
+
+    public UpdateQuery getUpdateQuery(String updateQuery) {
+        String query = updateQuery.replace(";", "");
+
+        return new UpdateQuery(
+                updateQuery,
+                getFilename(query),
+                getSetCondition(query),
+                getWherePredicate(query)
+        );
     }
 }
