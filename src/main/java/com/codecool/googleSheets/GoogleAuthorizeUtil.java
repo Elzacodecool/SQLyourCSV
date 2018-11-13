@@ -32,7 +32,7 @@ public class GoogleAuthorizeUtil {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static GoogleClientSecrets clientSecrets;
-    private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, SheetsScopes.SPREADSHEETS_READONLY);
+    private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, SheetsScopes.SPREADSHEETS);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
     private static GoogleAuthorizationCodeFlow flow;
     private static  NetHttpTransport httpTransport;
@@ -48,6 +48,7 @@ public class GoogleAuthorizeUtil {
                 httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .build();
+
         flow.getCredentialDataStore().delete("user");
     }
 
@@ -63,7 +64,7 @@ public class GoogleAuthorizeUtil {
                 .build();
     }
 
-    public static GoogleAuthorizationCodeFlow getFlow() {
+    public GoogleAuthorizationCodeFlow getFlow() {
         return flow;
     }
 }

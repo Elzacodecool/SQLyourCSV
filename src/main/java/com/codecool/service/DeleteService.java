@@ -32,6 +32,7 @@ public class DeleteService extends QueryService {
 
         Table table = converter.convert(deleteQuery.getFileName());
         Table updatedTable = delete(table, deleteQuery.getWhereCondition());
+        converter.convertBeforeWriting(updatedTable, deleteQuery.getFileName());
         return updatedTable;
     }
 

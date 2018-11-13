@@ -45,11 +45,15 @@ public class Converter {
         return new Table(columnNames, rows);
     }
 
-    public void convertBeforeWriting(Table table, String file) throws IOException {
-        List<List<Object>> values = new ArrayList();
+    public void convertBeforeWriting(Table table, String file) {
+        List<List<Object>> values = new ArrayList<>();
         values.add(table.getColumnNames().stream().map(Object.class::cast).collect(Collectors.toList()));
-        values.add(table.getRows().stream().map(n->n.getValuesFromRow().stream().map(Object.class::cast).collect(Collectors.toList())).collect(Collectors.toList()));
-        fileReader.writeData(file, values);
+        values.addAll(table.getRows().stream().map(n->n.getValuesFromRow().stream().map(Object.class::cast).collect(Collectors.toList())).collect(Collectors.toList()));
+        try {
+            fileReader.writeData(file, values);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean checkIfDataIsCorrect(List<String[]> data) {
