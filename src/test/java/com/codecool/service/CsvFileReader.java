@@ -10,7 +10,8 @@ import java.util.*;
 @Component
 public class CsvFileReader extends FileReader {
 
-    public static List<String[]> readData(String file) {
+    @Override
+    public List<String[]> readData(String file) {
         List<String[]> data = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new java.io.FileReader("src/test/resources/" + file))) {
@@ -22,5 +23,10 @@ public class CsvFileReader extends FileReader {
             e.printStackTrace();
         }
         return data;
+    }
+
+    @Override
+    public void writeData(String file,List<List<Object>> values) {
+
     }
 }
