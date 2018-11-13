@@ -93,7 +93,7 @@ public class SelectService extends QueryService {
 
     private Table getTableWithColumns(Table table, Map<SQLAggregateFunctions, List<String>> functions) {
         Row row = getRowWithFunctions(table.getRows(), functions);
-        List<String> columnNames = table.getColumnNames();
+        List<String> columnNames = getColumnNames(row);
 
         return new Table(columnNames, Collections.singletonList(row));
     }
