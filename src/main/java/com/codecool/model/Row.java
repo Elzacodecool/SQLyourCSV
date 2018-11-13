@@ -1,5 +1,6 @@
 package com.codecool.model;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -15,9 +16,23 @@ public class Row {
         return data;
     }
 
+    public String toString(List<String> columnNames) {
+        return columnNames.stream()
+                .map(column -> String.format("%"+ COLUMN_WIDTH +"s", data.get(column)))
+                .collect(Collectors.joining(" | "));
+    }
+
     public String toString() {
         return data.entrySet().stream()
                 .map(entry -> String.format("%"+ COLUMN_WIDTH +"s", entry.getValue()))
                 .collect(Collectors.joining(" | "));
     }
+
+    public List<String> getValuesFromRow() {
+        return data.entrySet().stream()
+                .map(entry -> entry.getValue().toString())
+                .collect(Collectors.toList());
+    }
+
+
 }

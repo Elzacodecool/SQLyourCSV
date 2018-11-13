@@ -25,7 +25,7 @@ public class Table {
                 .map(name -> String.format("%"+ Row.COLUMN_WIDTH +"s", name))
                 .collect(Collectors.joining(" | "));
         String rowsToString = rows.stream()
-                .map(Row::toString)
+                .map(row -> row.toString(columnNames))
                 .collect(Collectors.joining("\n"));
         return columnNamesToString + "\n" + rowsToString;
     }

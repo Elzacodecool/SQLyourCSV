@@ -6,9 +6,13 @@ import com.codecool.model.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Component
 public class Converter {
@@ -20,7 +24,12 @@ public class Converter {
     }
 
     public Table convert(String filepath) {
-        List<String[]> data = fileReader.readData(filepath);
+        List<String[]> data = null;
+        try {
+            data = fileReader.readData(filepath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (!checkIfDataIsCorrect(data)) {
             throw new WrongDataStructureException("Wrong data structure");
         }
@@ -34,6 +43,17 @@ public class Converter {
                 ).collect(Collectors.toList());
 
         return new Table(columnNames, rows);
+    }
+
+    public void convertBeforeWriting(Table table, String file) {
+        List<List<Object>> values = new ArrayList<>();
+        values.add(table.getColumnNames().stream().map(Object.class::cast).collect(Collectors.toList()));
+        values.addAll(table.getRows().stream().map(n->n.getValuesFromRow().stream().map(Object.class::cast).collect(Collectors.toList())).collect(Collectors.toList()));
+        try {
+            fileReader.writeData(file, values);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean checkIfDataIsCorrect(List<String[]> data) {

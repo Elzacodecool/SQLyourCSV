@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Query</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+<div class="card table-responsive">
+    <h5 class="card-header">SQLyourCSV</h5>
+    <div class="card-body">
+
+        <form class="container" action="#" th:action="@{/query}" method="post">
+            <h5 class="card-title">Provide query</h5>
+
+            <input class="form-control form-control-lg" type="text" name="query"><br>
+
+            <input class="btn btn-info btn-block" type="submit" value="Submit"/>
+
+
+        </form>
+
+
+
+<div class="container-fluid card-body">
+    <h5 class="card-title">Your Result</h5>
+
+        <table id="Table" class="table table-striped container-fluid">
+            <thead class="text-center">
+            <tr class="table-info">
+                <th:block th:each="h : ${queryTable.getColumnNames()}">
+                    <th th:text="${h}">Header Field</th>
+                </th:block>
+            </tr>
+
+            </thead>
+            <tbody class="text-center">
+            <tr th:each="row : ${queryTable.getRows()}">
+                <th:block th:each="column : ${queryTable.getColumnNames()}">
+                    <th th:text="${row.getData().get(column)}">Row Field</th>
+                </th:block>
+            </tr>
+            </tbody>
+        </table>
+</div>
+</div>
+</div>
+</body>
+</html>
