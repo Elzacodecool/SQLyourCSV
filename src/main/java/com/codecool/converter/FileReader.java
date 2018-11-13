@@ -5,6 +5,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.model.ClearValuesRequest;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.stereotype.Service;
@@ -37,8 +38,12 @@ public class FileReader {
 
         Sheets service = GoogleAuthorizeUtil.getSheetsService();
 
+
+        clearSpreadsheet(spreadsheetId, range);
+
         ValueRange body = new ValueRange()
                 .setValues(values);
+
 
         UpdateValuesResponse result =
                 service.spreadsheets().values().update(spreadsheetId, range, body)
@@ -71,6 +76,18 @@ public class FileReader {
                 request.getPageToken().length() > 0);
 
         return null;
+    }
+
+    private void clearSpreadsheet(String spreadsheetId, String range) {
+        Sheets service;
+        ClearValuesRequest requestBody = new ClearValuesRequest();
+
+        try {
+            service = GoogleAuthorizeUtil.getSheetsService();
+            service.spreadsheets().values().clear(spreadsheetId,range,requestBody).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 
