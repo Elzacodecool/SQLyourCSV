@@ -33,7 +33,9 @@ public class UpdateService extends QueryService {
         UpdateQuery updateQuery = interpreter.getUpdateQuery(query);
 
         Table table = converter.convert(updateQuery.getFileName());
-        return update(table, updateQuery);
+        Table updatedTable = update(table, updateQuery);
+        converter.convertBeforeWriting(updatedTable, updateQuery.getFileName());
+        return updatedTable;
     }
 
     private Table update(Table table, UpdateQuery updateQuery) {
