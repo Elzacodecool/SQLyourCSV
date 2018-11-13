@@ -29,6 +29,7 @@ public class DeleteService extends QueryService {
         deleteQuery.setQuery(query);
         Table table = converter.convert(deleteQuery.getFileName());
         Table updatedTable = delete(table);
+        converter.convertBeforeWriting(updatedTable, deleteQuery.getFileName());
         return updatedTable;
     }
 
