@@ -1,8 +1,6 @@
 package com.codecool.converter;
 
 import com.codecool.googleSheets.GoogleAuthorizeUtil;
-
-import com.codecool.model.Table;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
@@ -12,8 +10,8 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +32,7 @@ public class FileReader {
     public void writeData(String file,List<List<Object>> values) throws IOException {
 
         final String spreadsheetId = convertNameToGoogleSheetId(file);
-        final String range = "A1:Z10000";
+        final String range = "A1:Z1000";
         final  String valueInputOption = "RAW";
 
         Sheets service = GoogleAuthorizeUtil.getSheetsService();
@@ -46,12 +44,13 @@ public class FileReader {
                 service.spreadsheets().values().update(spreadsheetId, range, body)
                         .setValueInputOption(valueInputOption)
                         .execute();
+
         System.out.printf("%d cells updated.", result.getUpdatedCells());
     }
 
     private String convertNameToGoogleSheetId(String fileName) throws IOException {
         Drive drive = GoogleAuthorizeUtil.getDriveService();
-        List<File> result = new ArrayList<File>();
+        List<File> result = new ArrayList<>();
         Drive.Files.List request = drive.files().list();
 
         do {
